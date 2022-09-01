@@ -14,17 +14,17 @@ const signUp = async (req, res) => {
 
   const hashedPassword = await bcrypt.hash(passwordA, 10);
 
-  await req.models.User.create({
+  const user = await req.models.User.create({
     username,
     email,
     hashedPassword,
   });
 
-  const token = jwt.sign({ username }, config.jwt.secret, {
+  const token = jwt.sign({ sub: user.id }, config.jwt.secret, {
     expiresIn: config.jwt.expirationInterval,
   });
 
-  res.status(200).send(token);
+  res.status(200).cookie("token", token).end();
 };
 
 /**
@@ -47,7 +47,7 @@ const signIn = async (req, res) => {
     expiresIn: jwt.expirationInterval,
   });
 
-  res.status(200).send(token);
+  res.status(200).cookie("token", token).end();
 };
 
 export default { signUp, signIn };

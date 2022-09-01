@@ -16,6 +16,7 @@ const getBuild = async (req, res) => {
  * Create build
  */
 const createBuild = async (req, res) => {
+  console.log(req.user);
   res.status(200).end();
 };
 
@@ -23,6 +24,7 @@ const createBuild = async (req, res) => {
  * Update builds
  */
 const updateBuild = async (req, res) => {
+  console.log(req.user);
   res.status(200).end();
 };
 
@@ -30,6 +32,7 @@ const updateBuild = async (req, res) => {
  * Delete builds
  */
 const deleteBuild = async (req, res) => {
+  console.log(req.user);
   res.status(200).end();
 };
 

@@ -1,5 +1,6 @@
 import express from "express";
 import morgan from "morgan";
+import cookieParser from "cookie-parser";
 import bodyParser from "body-parser";
 import helmet from "helmet";
 import cors from "cors";
@@ -12,9 +13,12 @@ const app = express();
 // request logging. dev: console | production: file
 app.use(morgan(config.logs));
 
-// parse body params and attache them to req.body
+// parse body params and attach them to req.body
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+
+// parse cookies and attach them to req.cookies
+app.use(cookieParser());
 
 // secure apps by setting various HTTP headers
 app.use(helmet());
