@@ -1,4 +1,5 @@
 import * as dotenv from "dotenv";
+
 dotenv.config();
 
 const env = process.env.NODE_ENV;
@@ -28,4 +29,4 @@ const postgres =
 
 const logs = env === "production" ? "combined" : "dev";
 
-export { env, port, jwt, postgres, logs };
+export default { env, port, jwt, postgres, logs };

@@ -33,4 +33,4 @@ const deleteBuild = async (req, res) => {
   res.status(200).end();
 };
 
-export { getBuilds, getBuild, createBuild, updateBuild, deleteBuild };
+export default { getBuilds, getBuild, createBuild, updateBuild, deleteBuild };

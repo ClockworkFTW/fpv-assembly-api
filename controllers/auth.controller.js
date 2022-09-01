@@ -1,6 +1,6 @@
 import bcrypt from "bcrypt";
-import jsonwebtoken from "jsonwebtoken";
-import { jwt } from "../config/vars.js";
+import jwt from "jsonwebtoken";
+import config from "../config/variables.js";
 
 /**
  * Sign up
@@ -20,8 +20,8 @@ const signUp = async (req, res) => {
     hashedPassword,
   });
 
-  const token = jsonwebtoken.sign({ username }, jwt.secret, {
-    expiresIn: jwt.expirationInterval,
+  const token = jwt.sign({ username }, config.jwt.secret, {
+    expiresIn: config.jwt.expirationInterval,
   });
 
   res.status(200).send(token);
@@ -43,11 +43,11 @@ const signIn = async (req, res) => {
     return res.status(400).send({ message: "username or password incorrect." });
   }
 
-  const token = jsonwebtoken.sign({ username }, jwt.secret, {
+  const token = jwt.sign({ username }, jwt.secret, {
     expiresIn: jwt.expirationInterval,
   });
 
   res.status(200).send(token);
 };
 
-export { signUp, signIn };
+export default { signUp, signIn };

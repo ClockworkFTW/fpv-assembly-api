@@ -83,4 +83,4 @@ const deletePart = async (req, res) => {
   res.status(204).end();
 };
 
-export { getParts, getPart, createPart, updatePart, deletePart };
+export default { getParts, getPart, createPart, updatePart, deletePart };

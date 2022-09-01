@@ -1,6 +1,6 @@
 import Sequelize from "sequelize";
 
-import { postgres } from "./vars.js";
+import config from "./variables.js";
 
 import getUserModel from "../models/user.model.js";
 import getBuildModel from "../models/build.model.js";
@@ -19,12 +19,12 @@ import getFlightControllerModel from "../models/part-types/flight-controller.js"
 import getElectronicSpeedControllerModel from "../models/part-types/electronic-speed-controller.js";
 
 const sequelize = new Sequelize(
-  postgres.database,
-  postgres.user,
-  postgres.password,
+  config.postgres.database,
+  config.postgres.user,
+  config.postgres.password,
   {
-    host: postgres.host,
-    port: postgres.port,
+    host: config.postgres.host,
+    port: config.postgres.port,
     dialect: "postgres",
     logging: false,
   }

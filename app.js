@@ -3,14 +3,14 @@ import morgan from "morgan";
 import bodyParser from "body-parser";
 import helmet from "helmet";
 import cors from "cors";
-import routes from "../routes/index.js";
-import { logs } from "./vars.js";
-import { models } from "./postgres.js";
+import routes from "./routes/index.js";
+import config from "./config/variables.js";
+import { models } from "./config/postgres.js";
 
 const app = express();
 
 // request logging. dev: console | production: file
-app.use(morgan(logs));
+app.use(morgan(config.logs));
 
 // parse body params and attache them to req.body
 app.use(bodyParser.json());

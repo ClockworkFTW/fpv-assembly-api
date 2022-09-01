@@ -1,17 +1,17 @@
-import app from "./config/express.js";
+import app from "./app.js";
 import logger from "./config/logger.js";
-import { port, env } from "./config/vars.js";
+import config from "./config/variables.js";
 import { sequelize } from "./config/postgres.js";
 import seedParts from "./models/part-seeds/index.js";
 
 const eraseDatabaseOnSync = true;
 
 sequelize.sync({ force: eraseDatabaseOnSync }).then(async () => {
-  app.listen(port, () => {
+  app.listen(config.port, () => {
     if (eraseDatabaseOnSync) {
       seedParts();
     }
 
-    logger.info(`server started on port ${port} (${env})`);
+    logger.info(`server started on port ${config.port} (${config.env})`);
   });
 });

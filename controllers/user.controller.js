@@ -5,4 +5,4 @@ const getUser = async (req, res) => {
   res.status(200).end();
 };
 
-export { getUser };
+export default { getUser };
