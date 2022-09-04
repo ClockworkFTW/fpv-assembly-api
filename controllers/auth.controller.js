@@ -3,9 +3,9 @@ import jwt from "jsonwebtoken";
 import config from "../config/variables.js";
 
 /**
- * Sign up
+ * Local sign up
  */
-const signUp = async (req, res) => {
+const localSignUp = async (req, res) => {
   const { username, email, passwordA, passwordB } = req.body;
 
   if (passwordA !== passwordB) {
@@ -15,22 +15,23 @@ const signUp = async (req, res) => {
   const hashedPassword = await bcrypt.hash(passwordA, 10);
 
   const user = await req.models.User.create({
+    ssoProvider: "local",
     username,
     email,
     hashedPassword,
   });
 
-  const token = jwt.sign({ sub: user.id }, config.jwt.secret, {
+  const token = jwt.sign({ id: user.id }, config.jwt.secret, {
     expiresIn: config.jwt.expirationInterval,
   });
 
-  res.status(200).cookie("token", token).end();
+  res.status(200).cookie("token", token).redirect("/");
 };
 
 /**
- * Sign in
+ * Local sign in
  */
-const signIn = async (req, res) => {
+const localSignIn = async (req, res) => {
   const { username, password } = req.body;
 
   const user = await req.models.User.findOne({ where: { username } });
@@ -43,11 +44,50 @@ const signIn = async (req, res) => {
     return res.status(400).send({ message: "username or password incorrect." });
   }
 
-  const token = jwt.sign({ username }, jwt.secret, {
-    expiresIn: jwt.expirationInterval,
+  const token = jwt.sign({ id: user.id }, config.jwt.secret, {
+    expiresIn: config.jwt.expirationInterval,
   });
 
-  res.status(200).cookie("token", token).end();
+  res.status(200).cookie("token", token).redirect("/");
 };
 
-export default { signUp, signIn };
+/**
+ * Google sign in
+ */
+const googleSignIn = async (req, res) => {
+  const token = jwt.sign({ id: req.user.id }, config.jwt.secret, {
+    expiresIn: config.jwt.expirationInterval,
+  });
+
+  res.status(200).cookie("token", token).redirect("/");
+};
+
+/**
+ * Facebook sign in
+ */
+const facebookSignIn = async (req, res) => {
+  const token = jwt.sign({ id: req.user.id }, config.jwt.secret, {
+    expiresIn: config.jwt.expirationInterval,
+  });
+
+  res.status(200).cookie("token", token).redirect("/");
+};
+
+/**
+ * Apple sign in
+ */
+const appleSignIn = async (req, res) => {
+  const token = jwt.sign({ id: req.user.id }, config.jwt.secret, {
+    expiresIn: config.jwt.expirationInterval,
+  });
+
+  res.status(200).cookie("token", token).redirect("/");
+};
+
+export default {
+  localSignUp,
+  localSignIn,
+  googleSignIn,
+  facebookSignIn,
+  appleSignIn,
+};

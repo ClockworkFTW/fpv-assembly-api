@@ -5,6 +5,21 @@ const getUserModel = (sequelize, { DataTypes }) => {
       defaultValue: DataTypes.UUIDV4,
       primaryKey: true,
     },
+    ssoId: {
+      type: DataTypes.STRING,
+      unique: true,
+      allowNull: true,
+      validate: {
+        notEmpty: true,
+      },
+    },
+    ssoProvider: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      validate: {
+        notEmpty: true,
+      },
+    },
     username: {
       type: DataTypes.STRING,
       allowNull: false,
@@ -23,7 +38,7 @@ const getUserModel = (sequelize, { DataTypes }) => {
     },
     hashedPassword: {
       type: DataTypes.STRING,
-      allowNull: false,
+      allowNull: true,
       validate: {
         notEmpty: true,
       },

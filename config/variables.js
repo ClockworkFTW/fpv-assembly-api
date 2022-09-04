@@ -1,6 +1,12 @@
 import * as dotenv from "dotenv";
+import { fileURLToPath } from "url";
+import { dirname } from "path";
 
 dotenv.config();
+
+// TODO: Abstract to utility function
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 const env = process.env.NODE_ENV;
 const port = process.env.PORT;
@@ -27,6 +33,37 @@ const postgres =
         port: process.env.POSTGRES_PORT_DEV,
       };
 
+const passport = {
+  redirectOptions: {
+    failureRedirect: "/login",
+    failureMessage: true,
+    session: false,
+  },
+  provider: {
+    google: {
+      clientID: process.env.GOOGLE_OAUTH_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_OAUTH_CLIENT_SECRET,
+      callbackURL: process.env.GOOGLE_OAUTH_CALLBACK_URL,
+      scope: ["email", "profile"],
+      passReqToCallback: true,
+    },
+    facebook: {
+      clientID: process.env.FACEBOOK_OAUTH_CLIENT_ID,
+      clientSecret: process.env.FACEBOOK_OAUTH_CLIENT_SECRET,
+      callbackURL: process.env.FACEBOOK_OAUTH_CALLBACK_URL,
+      profileFields: ["emails", "displayName", "photos"],
+      passReqToCallback: true,
+    },
+    apple: {
+      clientID: process.env.APPLE_OAUTH_CLIENT_ID,
+      teamID: process.env.APPLE_OAUTH_TEAM_ID,
+      keyID: process.env.APPLE_OAUTH_KEY_ID,
+      callbackURL: process.env.APPLE_OAUTH_CALLBACK_URL,
+      privateKeyLocation: `${__dirname}/AuthKey.p8`,
+    },
+  },
+};
+
 const logs = env === "production" ? "combined" : "dev";
 
-export default { env, port, jwt, postgres, logs };
+export default { env, port, jwt, postgres, passport, logs };

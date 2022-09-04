@@ -13,7 +13,7 @@ const auth = async (req, res, next) => {
     return res.status(403).send({ message: "invalid token" });
   }
 
-  const user = await req.models.User.findByPk(decoded.sub, { raw: true });
+  const user = await req.models.User.findByPk(decoded.id, { raw: true });
   req.user = user;
   next();
 };
