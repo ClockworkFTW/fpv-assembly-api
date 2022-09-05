@@ -25,7 +25,7 @@ const localSignUp = async (req, res) => {
     expiresIn: config.jwt.expirationInterval,
   });
 
-  res.status(200).cookie("token", token).redirect("/");
+  res.status(200).cookie("token", token).end();
 };
 
 /**
@@ -48,7 +48,7 @@ const localSignIn = async (req, res) => {
     expiresIn: config.jwt.expirationInterval,
   });
 
-  res.status(200).cookie("token", token).redirect("/");
+  res.status(200).cookie("token", token).end();
 };
 
 /**

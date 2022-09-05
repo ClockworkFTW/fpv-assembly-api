@@ -7,23 +7,28 @@ const getBuildModel = (sequelize, { DataTypes }) => {
     },
     name: {
       type: DataTypes.STRING,
-      allowNull: false,
+      allowNull: true,
       validate: {
         notEmpty: true,
       },
     },
-    description: {
-      type: DataTypes.STRING,
-      allowNull: false,
+    markdown: {
+      type: DataTypes.TEXT,
+      allowNull: true,
       validate: {
         notEmpty: true,
       },
+    },
+    isPublished: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false,
     },
   });
 
   Build.associate = (models) => {
     Build.belongsTo(models.User);
-    Build.belongsToMany(models.Part, { through: "build_parts" });
+    Build.belongsToMany(models.Part, { through: models.BuildPart });
     Build.hasMany(models.Image, { onDelete: "CASCADE" });
   };
 

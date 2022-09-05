@@ -9,3 +9,6 @@ logs
 
 # Auth Keys
 AuthKey.p8
+
+# Misc
+.DS_Store

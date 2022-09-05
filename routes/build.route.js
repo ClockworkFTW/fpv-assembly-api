@@ -4,11 +4,11 @@ import auth from "../middleware/auth.js";
 
 const router = express.Router();
 
+router.post("/", auth, buildController.createBuild);
+
 router.get("/", buildController.getBuilds);
 
 router.get("/:buildId", buildController.getBuild);
-
-router.post("/", auth, buildController.createBuild);
 
 router.patch("/:buildId", auth, buildController.updateBuild);
 

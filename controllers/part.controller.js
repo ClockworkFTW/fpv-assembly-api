@@ -1,21 +1,21 @@
-import { partTypeToModel } from "../models/part.model.js";
+import partServices from "../services/part.services.js";
 
 /**
- * Get all parts
+ * Get parts
  */
 const getParts = async (req, res) => {
-  const parts = await req.models.Part.getAll(req.models);
+  const parts = await partServices.getAll();
 
   res.status(200).send({ parts });
 };
 
 /**
- * Get one part
+ * Get part
  */
 const getPart = async (req, res) => {
   const { partId } = req.params;
 
-  const part = await req.models.Part.getOne(req.models, partId);
+  const part = await partServices.getOne(partId);
 
   res.status(200).send({ part });
 };
@@ -24,22 +24,7 @@ const getPart = async (req, res) => {
  * Create part
  */
 const createPart = async (req, res) => {
-  const { type, name, manufacturer, image, weight, ...partSpecs } = req.body;
-
-  let part = await req.models.Part.create({
-    type,
-    name,
-    manufacturer,
-    image,
-    weight,
-  });
-
-  await req.models[partTypeToModel(type)].create({
-    ...partSpecs,
-    partId: part.id,
-  });
-
-  part = await req.models.Part.getOne(req.models, part.id);
+  const part = await partServices.createPart(req.body);
 
   res.status(201).send({ part });
 };
@@ -49,25 +34,8 @@ const createPart = async (req, res) => {
  */
 const updatePart = async (req, res) => {
   const { partId } = req.params;
-  const { type, name, manufacturer, image, weight, ...partSpecs } = req.body;
 
-  await req.models.Part.update(
-    {
-      type,
-      name,
-      manufacturer,
-      image,
-      weight,
-    },
-    { where: { id: partId } }
-  );
-
-  await req.models[partTypeToModel(type)].update(
-    { partSpecs },
-    { where: { partId } }
-  );
-
-  const part = await req.models.Part.getOne(req.models, partId);
+  const part = await partServices.updatePartById(partId, req.body);
 
   res.status(200).send({ part });
 };
@@ -78,7 +46,7 @@ const updatePart = async (req, res) => {
 const deletePart = async (req, res) => {
   const { partId } = req.params;
 
-  await req.models.Part.destroy({ where: { id: partId } });
+  await partServices.deletePartById(partId);
 
   res.status(204).end();
 };

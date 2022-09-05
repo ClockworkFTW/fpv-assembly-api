@@ -3,7 +3,7 @@ import { fileURLToPath } from "url";
 import { dirname } from "path";
 import { parse } from "csv-parse";
 import { models } from "../../config/postgres.js";
-import { partTypeToModel } from "../part.model.js";
+import partServices from "../../services/part.services.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -24,7 +24,7 @@ const seedParts = async () => {
       weight,
     });
 
-    await models[partTypeToModel(type)].create({
+    await models[partServices.typeToModel(type)].create({
       ...partSpecs,
       partId: part.id,
     });

@@ -3,8 +3,9 @@ import Sequelize from "sequelize";
 import config from "./variables.js";
 
 import getUserModel from "../models/user.model.js";
-import getBuildModel from "../models/build.model.js";
 import getPartModel from "../models/part.model.js";
+import getBuildModel from "../models/build.model.js";
+import getBuildPartModel from "../models/build-part.model.js";
 import getPriceModel from "../models/price.model.js";
 import getImageModel from "../models/image.model.js";
 import getMotorModel from "../models/part-types/motor.js";
@@ -32,8 +33,9 @@ const sequelize = new Sequelize(
 
 const models = {
   User: getUserModel(sequelize, Sequelize),
-  Build: getBuildModel(sequelize, Sequelize),
   Part: getPartModel(sequelize, Sequelize),
+  Build: getBuildModel(sequelize, Sequelize),
+  BuildPart: getBuildPartModel(sequelize, Sequelize),
   Price: getPriceModel(sequelize, Sequelize),
   Image: getImageModel(sequelize, Sequelize),
   Motor: getMotorModel(sequelize, Sequelize),

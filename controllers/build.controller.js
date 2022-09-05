@@ -1,39 +1,62 @@
+import buildServices from "../services/build.services.js";
+
 /**
- * Get all builds
+ * Get builds
  */
 const getBuilds = async (req, res) => {
-  res.status(200).end();
+  const builds = await buildServices.queryBuilds();
+
+  res.status(200).send({ builds });
 };
 
 /**
- * Get one build
+ * Get build
  */
 const getBuild = async (req, res) => {
-  res.status(200).end();
+  const { buildId } = req.params;
+
+  const build = await buildServices.getBuildById(buildId);
+
+  res.status(200).send({ build });
 };
 
 /**
  * Create build
  */
 const createBuild = async (req, res) => {
-  console.log(req.user);
-  res.status(200).end();
+  const userId = req.user.id;
+
+  const build = await buildServices.initBuild(userId);
+
+  res.status(200).send({ build });
 };
 
 /**
- * Update builds
+ * Update build
  */
 const updateBuild = async (req, res) => {
-  console.log(req.user);
-  res.status(200).end();
+  const { buildId } = req.params;
+
+  const build = await buildServices.updateBuildById(buildId, req.body);
+
+  res.status(200).send({ build });
 };
 
 /**
- * Delete builds
+ * Delete build
  */
 const deleteBuild = async (req, res) => {
-  console.log(req.user);
+  const { buildId } = req.params;
+
+  await buildServices.deleteBuildById(buildId);
+
   res.status(200).end();
 };
 
-export default { getBuilds, getBuild, createBuild, updateBuild, deleteBuild };
+export default {
+  getBuilds,
+  getBuild,
+  createBuild,
+  updateBuild,
+  deleteBuild,
+};
