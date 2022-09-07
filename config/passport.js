@@ -56,11 +56,12 @@ const appleVerify = async (req, accToken, refToken, idToken, profile, cb) => {
   });
 
   if (!user) {
+    const { name, email } = JSON.parse(req.body.user);
     user = await req.models.User.create({
       ssoId: profile.sub,
       ssoProvider: "apple",
-      username: "placeholder",
-      email: profile.email,
+      username: `${name.firstName} ${name.lastName}`,
+      email,
     });
   }
 
