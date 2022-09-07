@@ -44,6 +44,7 @@ const getPartModel = (sequelize, { DataTypes }) => {
 
   Part.associate = (models) => {
     Part.hasMany(models.Price, { onDelete: "CASCADE" });
+    Part.hasMany(models.Review, { onDelete: "CASCADE" });
     Part.hasOne(models.Motor, { onDelete: "CASCADE" });
     Part.hasOne(models.Frame, { onDelete: "CASCADE" });
     Part.hasOne(models.Battery, { onDelete: "CASCADE" });

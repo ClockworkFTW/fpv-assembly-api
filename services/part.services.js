@@ -5,7 +5,7 @@ import { models } from "../config/postgres.js";
  * @param {string} partType
  * @return {string} model name
  */
-export const typeToModel = (partType) => {
+export const partTypeToModel = (partType) => {
   let words = partType.split(" ");
   words = words.map((w) => w[0].toUpperCase() + w.slice(1).toLowerCase());
   return words.join("");
@@ -21,13 +21,26 @@ const getPartById = async (partId) => {
     raw: true,
   });
 
-  const partSpecs = await models[typeToModel(partMeta.type)].findOne({
+  const model = partTypeToModel(partMeta.type);
+
+  const partSpecs = await models[model].findOne({
     attributes: { exclude: ["id", "partId", "createdAt", "updatedAt"] },
     where: { partId },
     raw: true,
   });
 
-  return { ...partMeta, ...partSpecs };
+  const reviews = await models.Review.findAll({
+    include: { model: models.User, attributes: ["id", "username"] },
+    attributes: { exclude: ["partId", "userId"] },
+    where: { partId },
+    nest: true,
+    raw: true,
+  });
+
+  const averageRating =
+    reviews.reduce((sum, review) => sum + review.rating, 0) / reviews.length;
+
+  return { ...partMeta, ...partSpecs, reviews, averageRating };
 };
 
 /**
@@ -52,53 +65,32 @@ const queryParts = async (config = {}) => {
 /**
  * Create part
  * @param {object} body
- * @return {object} part
+ * @return {string} partId
  */
 const createPart = async (body) => {
-  const { type, name, manufacturer, image, weight, ...partSpecs } = body;
+  const { partMeta, partSpecs } = body;
 
-  let part = await models.Part.create({
-    type,
-    name,
-    manufacturer,
-    image,
-    weight,
-  });
+  const part = await models.Part.create(partMeta);
+  const partId = part.get("id");
 
-  await models[typeToModel(type)].create({
-    ...partSpecs,
-    partId: part.id,
-  });
+  const model = partTypeToModel(partMeta.type);
+  await models[model].create({ ...partSpecs, partId });
 
-  return await getPartById(part.id);
+  return partId;
 };
 
 /**
  * Update part by ID
  * @param {string} partId
  * @param {object} body
- * @return {object} part
  */
 const updatePartById = async (partId, body) => {
-  const { type, name, manufacturer, image, weight, ...partSpecs } = body;
+  const { partMeta, partSpecs } = body;
 
-  await req.models.Part.update(
-    {
-      type,
-      name,
-      manufacturer,
-      image,
-      weight,
-    },
-    { where: { id: partId } }
-  );
+  await models.Part.update(partMeta, { where: { id: partId } });
 
-  await req.models[partServices.typeToModel(type)].update(
-    { partSpecs },
-    { where: { partId } }
-  );
-
-  return await getPartById(partId);
+  const model = partTypeToModel(partMeta.type);
+  await models[model].update(partSpecs, { where: { partId } });
 };
 
 /**
@@ -106,14 +98,42 @@ const updatePartById = async (partId, body) => {
  * @param {string} partId
  */
 const deletePartById = async (partId) => {
-  await req.models.Part.destroy({ where: { id: partId } });
+  await models.Part.destroy({ where: { id: partId } });
+};
+
+/**
+ * Create part review
+ * @param {object} body
+ */
+const createPartReview = async (body) => {
+  await models.Review.create(body);
+};
+
+/**
+ * Update part review by ID
+ * @param {string} reviewId
+ * @param {object} body
+ */
+const updatePartReviewById = async (reviewId, body) => {
+  await models.Review.update(body, { where: { id: reviewId } });
+};
+
+/**
+ * Delete part review by ID
+ * @param {string} reviewId
+ */
+const deletePartReviewById = async (reviewId) => {
+  await models.Review.destroy({ where: { id: reviewId } });
 };
 
 export default {
-  typeToModel,
+  partTypeToModel,
   getPartById,
   queryParts,
   createPart,
   updatePartById,
   deletePartById,
+  createPartReview,
+  updatePartReviewById,
+  deletePartReviewById,
 };

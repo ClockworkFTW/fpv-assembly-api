@@ -4,6 +4,7 @@ import config from "./variables.js";
 
 import getUserModel from "../models/user.model.js";
 import getPartModel from "../models/part.model.js";
+import getReviewModel from "../models/review.model.js";
 import getBuildModel from "../models/build.model.js";
 import getBuildPartModel from "../models/build-part.model.js";
 import getPriceModel from "../models/price.model.js";
@@ -34,6 +35,7 @@ const sequelize = new Sequelize(
 const models = {
   User: getUserModel(sequelize, Sequelize),
   Part: getPartModel(sequelize, Sequelize),
+  Review: getReviewModel(sequelize, Sequelize),
   Build: getBuildModel(sequelize, Sequelize),
   BuildPart: getBuildPartModel(sequelize, Sequelize),
   Price: getPriceModel(sequelize, Sequelize),

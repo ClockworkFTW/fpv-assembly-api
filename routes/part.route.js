@@ -14,4 +14,18 @@ router.patch("/:partId", auth, partController.updatePart);
 
 router.delete("/:partId", auth, partController.deletePart);
 
+router.post("/:partId/reviews", auth, partController.createPartReview);
+
+router.patch(
+  "/:partId/reviews/:reviewId",
+  auth,
+  partController.updatePartReview
+);
+
+router.delete(
+  "/:partId/reviews/:reviewId",
+  auth,
+  partController.deletePartReview
+);
+
 export default router;

@@ -24,7 +24,9 @@ const seedParts = async () => {
       weight,
     });
 
-    await models[partServices.typeToModel(type)].create({
+    const model = partServices.partTypeToModel(type);
+
+    await models[model].create({
       ...partSpecs,
       partId: part.id,
     });

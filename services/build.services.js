@@ -18,13 +18,13 @@ const getBuildById = async (buildId) => {
 
   const buildParts = await models.BuildPart.findAll({
     where: { buildId },
-    attributes: ["id", "partId", "quantity"],
+    attributes: ["partId", "quantity"],
   });
 
   const parts = await Promise.all(
-    buildParts.map(async ({ id, partId, quantity }) => {
+    buildParts.map(async ({ partId, quantity }) => {
       const part = await partServices.getPartById(partId);
-      return { ...part, buildPart: { id, quantity } };
+      return { ...part, quantity };
     })
   );
 
@@ -53,19 +53,14 @@ const queryBuilds = async (config = {}) => {
 /**
  * Initialize build
  * @param {string} userId
- * @param {string} username
- * @return {object} build
+ * @return {string} buildId
  */
 const initBuild = async (userId) => {
-  let build = await models.Build.findOne({
+  const [build, created] = await models.Build.findOrCreate({
     where: { userId, isPublished: false },
+    raw: true,
   });
-
-  if (!build) {
-    build = await models.Build.create({ userId });
-  }
-
-  return await getBuildById(build.id);
+  return build.id;
 };
 
 /**
@@ -87,10 +82,41 @@ const deleteBuildById = async (buildId) => {
   await models.Build.destroy({ where: { id: buildId } });
 };
 
+/**
+ * Create build part
+ * @param {string} buildId
+ * @param {string} partId
+ */
+const createBuildPart = async (buildId, partId) => {
+  await models.BuildPart.create({ buildId, partId });
+};
+
+/**
+ * Update build part by ID
+ * @param {string} buildId
+ * @param {string} partId
+ * @param {integer} quantity
+ */
+const updateBuildPartById = async (buildId, partId, quantity) => {
+  await models.BuildPart.update({ quantity }, { where: { buildId, partId } });
+};
+
+/**
+ * Delete build part by ID
+ * @param {string} buildId
+ * @param {string} partId
+ */
+const deleteBuildPartById = async (buildId, partId) => {
+  await models.BuildPart.destroy({ where: { buildId, partId } });
+};
+
 export default {
   initBuild,
   queryBuilds,
   getBuildById,
   updateBuildById,
   deleteBuildById,
+  createBuildPart,
+  updateBuildPartById,
+  deleteBuildPartById,
 };
