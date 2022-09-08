@@ -33,6 +33,13 @@ const postgres =
         port: process.env.POSTGRES_PORT_DEV,
       };
 
+const aws = {
+  accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+  bucket: process.env.AWS_BUCKET,
+  region: process.env.AWS_REGION,
+};
+
 const passport = {
   redirectOptions: {
     failureRedirect: "/login",
@@ -66,4 +73,4 @@ const passport = {
 
 const logs = env === "production" ? "combined" : "dev";
 
-export default { env, port, jwt, postgres, passport, logs };
+export default { env, port, jwt, postgres, aws, passport, logs };

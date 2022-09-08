@@ -5,7 +5,28 @@ const getImageModel = (sequelize, { DataTypes }) => {
       defaultValue: DataTypes.UUIDV4,
       primaryKey: true,
     },
+    tag: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      validate: {
+        notEmpty: true,
+      },
+    },
     url: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      validate: {
+        notEmpty: true,
+      },
+    },
+    bucket: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      validate: {
+        notEmpty: true,
+      },
+    },
+    key: {
       type: DataTypes.STRING,
       allowNull: false,
       validate: {

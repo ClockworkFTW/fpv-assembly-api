@@ -1,4 +1,5 @@
 import { models } from "../config/postgres.js";
+import aws from "../config/aws.js";
 import partServices from "./part.services.js";
 
 /**
@@ -110,6 +111,27 @@ const deleteBuildPartById = async (buildId, partId) => {
   await models.BuildPart.destroy({ where: { buildId, partId } });
 };
 
+/**
+ * Create build image
+ * @param {string} buildId
+ * @param {object} file
+ */
+const createBuildImage = async (buildId, file) => {
+  const { buffer, destination } = file;
+  const data = await aws.uploadFile(buffer, destination);
+  await models.Image.create({ ...data, buildId });
+};
+
+/**
+ * Delete build image by ID
+ * @param {string} imageId
+ */
+const deleteBuildImageById = async (imageId) => {
+  const image = await models.Image.findByPk(imageId);
+  await aws.deleteFile(image.bucket, image.key);
+  await image.destroy();
+};
+
 export default {
   initBuild,
   queryBuilds,
@@ -119,4 +141,6 @@ export default {
   createBuildPart,
   updateBuildPartById,
   deleteBuildPartById,
+  createBuildImage,
+  deleteBuildImageById,
 };

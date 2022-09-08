@@ -59,8 +59,7 @@ const deleteBuild = async (req, res) => {
  * Create build part
  */
 const createBuildPart = async (req, res) => {
-  const { buildId } = req.params;
-  const { partId } = req.body;
+  const { buildId, partId } = req.params;
 
   await buildServices.createBuildPart(buildId, partId);
   const build = await buildServices.getBuildById(buildId);
@@ -93,6 +92,30 @@ const deleteBuildPart = async (req, res) => {
   res.status(200).send({ build });
 };
 
+/**
+ * Create build image
+ */
+const createBuildImage = async (req, res) => {
+  const { buildId } = req.params;
+
+  await buildServices.createBuildImage(buildId, req.file);
+  const build = await buildServices.getBuildById(buildId);
+
+  res.status(200).send({ build });
+};
+
+/**
+ * Delete build image
+ */
+const deleteBuildImage = async (req, res) => {
+  const { buildId, imageId } = req.params;
+
+  await buildServices.deleteBuildImageById(imageId);
+  const build = await buildServices.getBuildById(buildId);
+
+  res.status(200).send({ build });
+};
+
 export default {
   getBuilds,
   getBuild,
@@ -102,4 +125,6 @@ export default {
   createBuildPart,
   updateBuildPart,
   deleteBuildPart,
+  createBuildImage,
+  deleteBuildImage,
 };
