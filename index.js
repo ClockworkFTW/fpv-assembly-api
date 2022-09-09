@@ -7,11 +7,13 @@ import seedParts from "./models/part-seeds/index.js";
 const eraseDatabaseOnSync = false;
 
 sequelize.sync({ force: eraseDatabaseOnSync }).then(async () => {
-  app.listen(config.port, () => {
+  app.listen(config.app.port, () => {
     if (eraseDatabaseOnSync) {
       seedParts();
     }
 
-    logger.info(`server started on port ${config.port} (${config.env})`);
+    logger.info(
+      `server started on port ${config.app.port} (${config.app.env})`
+    );
   });
 });

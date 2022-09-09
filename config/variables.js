@@ -8,16 +8,31 @@ dotenv.config();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-const env = process.env.NODE_ENV;
-const port = process.env.PORT;
+const app = {
+  env: process.env.NODE_ENV,
+  port: process.env.PORT,
+  name: process.env.NAME,
+  domain: process.env.DOMAIN,
+};
 
 const jwt = {
   secret: process.env.JWT_SECRET,
-  expirationInterval: process.env.JWT_EXPIRATION_INTERVAL,
+  userAccessTokenExpirationInterval:
+    process.env.JWT_USER_ACCESS_TOKEN_EXPIRATION_INTERVAL,
+  userAccessTokenExpirationUnit:
+    process.env.JWT_USER_ACCESS_TOKEN_EXPIRATION_UNIT,
+  passwordResetTokenExpirationInterval:
+    process.env.JWT_PASSWORD_RESET_TOKEN_EXPIRATION_INTERVAL,
+  passwordResetTokenExpirationUnit:
+    process.env.JWT_PASSWORD_RESET_TOKEN_EXPIRATION_UNIT,
+  emailVerificationTokenExpirationInterval:
+    process.env.JWT_EMAIL_VERIFICATION_TOKEN_EXPIRATION_INTERVAL,
+  emailVerificationTokenExpirationUnit:
+    process.env.JWT_EMAIL_VERIFICATION_TOKEN_EXPIRATION_UNIT,
 };
 
 const postgres =
-  env === "production"
+  app.env === "production"
     ? {
         database: process.env.POSTGRES_DATABASE_PROD,
         user: process.env.POSTGRES_USER_PROD,
@@ -43,6 +58,7 @@ const aws = {
 const passport = {
   redirectOptions: {
     failureRedirect: "/login",
+    failWithError: true,
     failureMessage: true,
     session: false,
   },
@@ -71,6 +87,6 @@ const passport = {
   },
 };
 
-const logs = env === "production" ? "combined" : "dev";
+const logs = app.env === "production" ? "combined" : "dev";
 
-export default { env, port, jwt, postgres, aws, passport, logs };
+export default { app, jwt, postgres, aws, passport, logs };

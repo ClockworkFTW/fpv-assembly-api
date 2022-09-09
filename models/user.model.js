@@ -1,3 +1,9 @@
+export const ssoProviders = {
+  GOOGLE: "google",
+  FACEBOOK: "facebook",
+  APPLE: "apple",
+};
+
 const getUserModel = (sequelize, { DataTypes }) => {
   const User = sequelize.define("user", {
     id: {
@@ -15,9 +21,10 @@ const getUserModel = (sequelize, { DataTypes }) => {
     },
     ssoProvider: {
       type: DataTypes.STRING,
-      allowNull: false,
+      allowNull: true,
       validate: {
         notEmpty: true,
+        isIn: [Object.values(ssoProviders)],
       },
     },
     username: {
@@ -42,6 +49,16 @@ const getUserModel = (sequelize, { DataTypes }) => {
       validate: {
         notEmpty: true,
       },
+    },
+    isVerified: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false,
+    },
+    role: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      defaultValue: "USER",
     },
   });
 

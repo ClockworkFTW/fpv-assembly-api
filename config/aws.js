@@ -31,4 +31,19 @@ const deleteFile = async (bucket, key) => {
   await S3.deleteObject(params).promise();
 };
 
-export default { uploadFile, deleteFile };
+const SES = new AWS.SES();
+
+const sendEmail = async (alias, destination, subject, text) => {
+  const params = {
+    Source: `${config.app.name} <${alias}@${config.app.domain}>`,
+    Destination: { ToAddresses: [destination] },
+    Message: {
+      Body: { Text: { Data: text } },
+      Subject: { Data: subject },
+    },
+  };
+
+  await SES.sendEmail(params).promise();
+};
+
+export default { uploadFile, deleteFile, sendEmail };

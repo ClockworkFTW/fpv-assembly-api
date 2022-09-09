@@ -34,4 +34,12 @@ router.post(
   authController.appleSignIn
 );
 
+router.get("/verify-email", authController.verifyEmail);
+
+router.post("/verify-email", authController.requestEmailVerification);
+
+router.get("/reset-password", authController.resetPassword);
+
+router.post("/reset-password", authController.requestPasswordReset);
+
 export default router;

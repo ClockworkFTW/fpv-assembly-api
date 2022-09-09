@@ -2,6 +2,7 @@ import Sequelize from "sequelize";
 
 import config from "./variables.js";
 
+import getTokenModel from "../models/token.model.js";
 import getUserModel from "../models/user.model.js";
 import getPartModel from "../models/part.model.js";
 import getReviewModel from "../models/review.model.js";
@@ -33,6 +34,7 @@ const sequelize = new Sequelize(
 );
 
 const models = {
+  Token: getTokenModel(sequelize, Sequelize),
   User: getUserModel(sequelize, Sequelize),
   Part: getPartModel(sequelize, Sequelize),
   Review: getReviewModel(sequelize, Sequelize),

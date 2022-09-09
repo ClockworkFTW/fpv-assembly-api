@@ -2,23 +2,28 @@ import jwt from "jsonwebtoken";
 import GoogleStrategy from "passport-google-oauth20";
 import FacebookStrategy from "passport-facebook";
 import AppleStrategy from "passport-apple";
+import userServices from "../services/user.services.js";
+import { ssoProviders } from "../models/user.model.js";
 import config from "./variables.js";
 
 const googleVerify = async (req, accToken, refToken, profile, cb) => {
-  let user = await req.models.User.findOne({
-    where: { ssoId: profile.id },
-  });
+  try {
+    let user = await userServices.getUserBySsoId(profile.id);
 
-  if (!user) {
-    user = await req.models.User.create({
-      ssoId: profile.id,
-      ssoProvider: "google",
-      username: profile.displayName,
-      email: profile.emails[0].value,
-    });
+    if (!user) {
+      user = await req.models.User.create({
+        isVerified: true,
+        ssoId: profile.id,
+        ssoProvider: ssoProviders.GOOGLE,
+        username: profile.displayName,
+        email: profile.emails[0].value,
+      });
+    }
+
+    cb(null, user);
+  } catch (error) {
+    cb(true, null);
   }
-
-  cb(null, user);
 };
 
 const googleStrategy = new GoogleStrategy(
@@ -27,20 +32,23 @@ const googleStrategy = new GoogleStrategy(
 );
 
 const facebookVerify = async (req, accToken, refToken, profile, cb) => {
-  let user = await req.models.User.findOne({
-    where: { ssoId: profile.id },
-  });
+  try {
+    let user = await userServices.getUserBySsoId(profile.id);
 
-  if (!user) {
-    user = await req.models.User.create({
-      ssoId: profile.id,
-      ssoProvider: "facebook",
-      username: profile.displayName,
-      email: profile.emails[0].value,
-    });
+    if (!user) {
+      user = await req.models.User.create({
+        isVerified: true,
+        ssoId: profile.id,
+        ssoProvider: ssoProviders.FACEBOOK,
+        username: profile.displayName,
+        email: profile.emails[0].value,
+      });
+    }
+
+    cb(null, user);
+  } catch (error) {
+    cb(true, null);
   }
-
-  cb(null, user);
 };
 
 const facebookStrategy = new FacebookStrategy(
@@ -49,23 +57,26 @@ const facebookStrategy = new FacebookStrategy(
 );
 
 const appleVerify = async (req, accToken, refToken, idToken, profile, cb) => {
-  profile = jwt.decode(idToken);
+  try {
+    profile = jwt.decode(idToken);
 
-  let user = await req.models.User.findOne({
-    where: { ssoId: profile.sub },
-  });
+    let user = await userServices.getUserBySsoId(profile.id);
 
-  if (!user) {
-    const { name, email } = JSON.parse(req.body.user);
-    user = await req.models.User.create({
-      ssoId: profile.sub,
-      ssoProvider: "apple",
-      username: `${name.firstName} ${name.lastName}`,
-      email,
-    });
+    if (!user) {
+      const { name, email } = JSON.parse(req.body.user);
+      user = await req.models.User.create({
+        isVerified: true,
+        ssoId: profile.sub,
+        ssoProvider: ssoProviders.APPLE,
+        username: `${name.firstName} ${name.lastName}`,
+        email,
+      });
+    }
+
+    cb(null, user);
+  } catch (error) {
+    cb(true, null);
   }
-
-  cb(null, user);
 };
 
 const appleStrategy = new AppleStrategy(

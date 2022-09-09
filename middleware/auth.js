@@ -1,21 +1,25 @@
-import jwt from "jsonwebtoken";
-import config from "../config/variables.js";
+import userServices from "../services/user.services.js";
+import tokenServices from "../services/token.services.js";
 
 const auth = async (req, res, next) => {
-  if (!req.cookies.token) {
-    return res.status(403).send({ message: "missing token" });
+  try {
+    if (!req.cookies.token) {
+      throw new Error("Token missing");
+    }
+
+    const token = await tokenServices.verifyToken(req.cookies.token);
+    const user = await userServices.getUserById(token.userId);
+
+    if (!user.isVerified) {
+      throw new Error("User not verified");
+    }
+
+    req.user = user;
+
+    next();
+  } catch (error) {
+    next(error);
   }
-
-  const { token } = req.cookies;
-  const decoded = jwt.verify(token, config.jwt.secret);
-
-  if (!decoded) {
-    return res.status(403).send({ message: "invalid token" });
-  }
-
-  const user = await req.models.User.findByPk(decoded.id, { raw: true });
-  req.user = user;
-  next();
 };
 
 export default auth;
