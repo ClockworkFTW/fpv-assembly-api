@@ -1,14 +1,14 @@
 import bcrypt from "bcrypt";
 import generator from "generate-password";
+import asyncHandler from "express-async-handler";
 import userServices from "../services/user.services.js";
 import tokenServices from "../services/token.services.js";
 import emailServices from "../services/email.services.js";
-import catchAsync from "../util/catch-async.js";
 
 /**
  * Local sign up
  */
-const localSignUp = catchAsync(async (req, res) => {
+const localSignUp = asyncHandler(async (req, res) => {
   const { username, email, passwordA, passwordB } = req.body;
 
   if (passwordA !== passwordB) {
@@ -39,7 +39,7 @@ const localSignUp = catchAsync(async (req, res) => {
 /**
  * Local sign in
  */
-const localSignIn = catchAsync(async (req, res) => {
+const localSignIn = asyncHandler(async (req, res) => {
   const { username, password } = req.body;
 
   const user = await userServices.getUserByUsername(username);
@@ -60,7 +60,7 @@ const localSignIn = catchAsync(async (req, res) => {
 /**
  * Google sign in
  */
-const googleSignIn = catchAsync(async (req, res) => {
+const googleSignIn = asyncHandler(async (req, res) => {
   const token = await tokenServices.generateUserAccessToken(req.user.id);
   res.status(200).cookie("token", token.value).redirect("/");
 });
@@ -68,7 +68,7 @@ const googleSignIn = catchAsync(async (req, res) => {
 /**
  * Facebook sign in
  */
-const facebookSignIn = catchAsync(async (req, res) => {
+const facebookSignIn = asyncHandler(async (req, res) => {
   const token = await tokenServices.generateUserAccessToken(req.user.id);
   res.status(200).cookie("token", token.value).redirect("/");
 });
@@ -76,7 +76,7 @@ const facebookSignIn = catchAsync(async (req, res) => {
 /**
  * Apple sign in
  */
-const appleSignIn = catchAsync(async (req, res) => {
+const appleSignIn = asyncHandler(async (req, res) => {
   const token = await tokenServices.generateUserAccessToken(req.user.id);
   res.status(200).cookie("token", token.value).redirect("/");
 });
@@ -84,7 +84,7 @@ const appleSignIn = catchAsync(async (req, res) => {
 /**
  * Request email verification
  */
-const requestEmailVerification = catchAsync(async (req, res) => {
+const requestEmailVerification = asyncHandler(async (req, res) => {
   const user = await userServices.getUserById(req.body.userId);
   const token = await tokenServices.generateEmailVerificationToken(user.id);
 
@@ -100,7 +100,7 @@ const requestEmailVerification = catchAsync(async (req, res) => {
 /**
  * Verify email
  */
-const verifyEmail = catchAsync(async (req, res) => {
+const verifyEmail = asyncHandler(async (req, res) => {
   const token = await tokenServices.verifyToken(req.query.token);
   await userServices.updateUserById(token.userId, { isVerified: true });
   res.status(200).redirect("/");
@@ -109,7 +109,7 @@ const verifyEmail = catchAsync(async (req, res) => {
 /**
  * Request password reset
  */
-const requestPasswordReset = catchAsync(async (req, res) => {
+const requestPasswordReset = asyncHandler(async (req, res) => {
   const user = await userServices.getUserByEmail(req.body.email);
   const token = await tokenServices.generatePasswordResetToken(user.id);
 
@@ -125,7 +125,7 @@ const requestPasswordReset = catchAsync(async (req, res) => {
 /**
  * Reset password
  */
-const resetPassword = catchAsync(async (req, res) => {
+const resetPassword = asyncHandler(async (req, res) => {
   const token = await tokenServices.verifyToken(req.query.token);
 
   const password = generator.generate({ length: 10, numbers: true });

@@ -1,10 +1,10 @@
+import asyncHandler from "express-async-handler";
 import partServices from "../services/part.services.js";
-import catchAsync from "../util/catch-async.js";
 
 /**
  * Get parts
  */
-const getParts = catchAsync(async (req, res) => {
+const getParts = asyncHandler(async (req, res) => {
   const parts = await partServices.queryParts();
 
   res.status(200).send({ parts });
@@ -13,7 +13,7 @@ const getParts = catchAsync(async (req, res) => {
 /**
  * Get part
  */
-const getPart = catchAsync(async (req, res) => {
+const getPart = asyncHandler(async (req, res) => {
   const { partId } = req.params;
 
   const part = await partServices.getPartById(partId);
@@ -24,7 +24,7 @@ const getPart = catchAsync(async (req, res) => {
 /**
  * Create part
  */
-const createPart = catchAsync(async (req, res) => {
+const createPart = asyncHandler(async (req, res) => {
   const partId = await partServices.createPart(req.body);
   const part = await partServices.getPartById(partId);
 
@@ -34,7 +34,7 @@ const createPart = catchAsync(async (req, res) => {
 /**
  * Update part
  */
-const updatePart = catchAsync(async (req, res) => {
+const updatePart = asyncHandler(async (req, res) => {
   const { partId } = req.params;
 
   await partServices.updatePartById(partId, req.body);
@@ -46,7 +46,7 @@ const updatePart = catchAsync(async (req, res) => {
 /**
  * Delete part
  */
-const deletePart = catchAsync(async (req, res) => {
+const deletePart = asyncHandler(async (req, res) => {
   const { partId } = req.params;
 
   await partServices.deletePartById(partId);
@@ -57,7 +57,7 @@ const deletePart = catchAsync(async (req, res) => {
 /**
  * Create part review
  */
-const createPartReview = catchAsync(async (req, res) => {
+const createPartReview = asyncHandler(async (req, res) => {
   const { partId } = req.params;
   const userId = req.user.id;
 
@@ -70,7 +70,7 @@ const createPartReview = catchAsync(async (req, res) => {
 /**
  * Update part review
  */
-const updatePartReview = catchAsync(async (req, res) => {
+const updatePartReview = asyncHandler(async (req, res) => {
   const { partId, reviewId } = req.params;
 
   await partServices.updatePartReviewById(reviewId, req.body);
@@ -82,7 +82,7 @@ const updatePartReview = catchAsync(async (req, res) => {
 /**
  * Delete part review
  */
-const deletePartReview = catchAsync(async (req, res) => {
+const deletePartReview = asyncHandler(async (req, res) => {
   const { partId, reviewId } = req.params;
 
   await partServices.deletePartReviewById(reviewId);

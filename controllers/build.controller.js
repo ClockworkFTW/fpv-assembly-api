@@ -1,10 +1,10 @@
+import asyncHandler from "express-async-handler";
 import buildServices from "../services/build.services.js";
-import catchAsync from "../util/catch-async.js";
 
 /**
  * Get builds
  */
-const getBuilds = catchAsync(async (req, res) => {
+const getBuilds = asyncHandler(async (req, res) => {
   const builds = await buildServices.queryBuilds();
 
   res.status(200).send({ builds });
@@ -13,7 +13,7 @@ const getBuilds = catchAsync(async (req, res) => {
 /**
  * Get build
  */
-const getBuild = catchAsync(async (req, res) => {
+const getBuild = asyncHandler(async (req, res) => {
   const { buildId } = req.params;
 
   const build = await buildServices.getBuildById(buildId);
@@ -24,7 +24,7 @@ const getBuild = catchAsync(async (req, res) => {
 /**
  * Create build
  */
-const createBuild = catchAsync(async (req, res) => {
+const createBuild = asyncHandler(async (req, res) => {
   const userId = req.user.id;
 
   const buildId = await buildServices.initBuild(userId);
@@ -36,7 +36,7 @@ const createBuild = catchAsync(async (req, res) => {
 /**
  * Update build
  */
-const updateBuild = catchAsync(async (req, res) => {
+const updateBuild = asyncHandler(async (req, res) => {
   const { buildId } = req.params;
 
   await buildServices.updateBuildById(buildId, req.body);
@@ -48,7 +48,7 @@ const updateBuild = catchAsync(async (req, res) => {
 /**
  * Delete build
  */
-const deleteBuild = catchAsync(async (req, res) => {
+const deleteBuild = asyncHandler(async (req, res) => {
   const { buildId } = req.params;
 
   await buildServices.deleteBuildById(buildId);
@@ -59,7 +59,7 @@ const deleteBuild = catchAsync(async (req, res) => {
 /**
  * Create build part
  */
-const createBuildPart = catchAsync(async (req, res) => {
+const createBuildPart = asyncHandler(async (req, res) => {
   const { buildId, partId } = req.params;
 
   await buildServices.createBuildPart(buildId, partId);
@@ -71,7 +71,7 @@ const createBuildPart = catchAsync(async (req, res) => {
 /**
  * Update build part
  */
-const updateBuildPart = catchAsync(async (req, res) => {
+const updateBuildPart = asyncHandler(async (req, res) => {
   const { buildId, partId } = req.params;
   const { quantity } = req.body;
 
@@ -84,7 +84,7 @@ const updateBuildPart = catchAsync(async (req, res) => {
 /**
  * Delete build part
  */
-const deleteBuildPart = catchAsync(async (req, res) => {
+const deleteBuildPart = asyncHandler(async (req, res) => {
   const { buildId, partId } = req.params;
 
   await buildServices.deleteBuildPartById(buildId, partId);
@@ -96,7 +96,7 @@ const deleteBuildPart = catchAsync(async (req, res) => {
 /**
  * Create build image
  */
-const createBuildImage = catchAsync(async (req, res) => {
+const createBuildImage = asyncHandler(async (req, res) => {
   const { buildId } = req.params;
 
   await buildServices.createBuildImage(buildId, req.file);
@@ -108,7 +108,7 @@ const createBuildImage = catchAsync(async (req, res) => {
 /**
  * Delete build image
  */
-const deleteBuildImage = catchAsync(async (req, res) => {
+const deleteBuildImage = asyncHandler(async (req, res) => {
   const { buildId, imageId } = req.params;
 
   await buildServices.deleteBuildImageById(imageId);
