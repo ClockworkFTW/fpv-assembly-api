@@ -1,5 +1,6 @@
 import asyncHandler from "express-async-handler";
 import partServices from "../services/part.services.js";
+import { models } from "../config/postgres.js";
 
 /**
  * Get parts
@@ -25,8 +26,14 @@ const getPart = asyncHandler(async (req, res) => {
  * Create part
  */
 const createPart = asyncHandler(async (req, res) => {
-  const partId = await partServices.createPart(req.body);
-  const part = await partServices.getPartById(partId);
+  const { metaData, specData } = req.body;
+
+  let part = await models.Part.create(metaData);
+
+  const model = partServices.partTypeToModel(metaData.type);
+  await models[model].create({ ...specData, partId: part.id });
+
+  part = await partServices.getPartById(part.id);
 
   res.status(201).send({ part });
 });
@@ -36,8 +43,24 @@ const createPart = asyncHandler(async (req, res) => {
  */
 const updatePart = asyncHandler(async (req, res) => {
   const { partId } = req.params;
+  const { metaData, specData } = req.body;
 
-  await partServices.updatePartById(partId, req.body);
+  const partMeta = await models.Part.findByPk(partId);
+
+  if (!partMeta) {
+    throw new Error("Part not found");
+  }
+
+  const model = partServices.partTypeToModel(part.type);
+  const partSpec = await models[model].findOne({ where: { partId } });
+
+  if (!partSpec) {
+    throw new Error("Part not found");
+  }
+
+  await partMeta.update(metaData);
+  await partSpec.update(specData);
+
   const part = await partServices.getPartById(partId);
 
   res.status(200).send({ part });
@@ -49,7 +72,21 @@ const updatePart = asyncHandler(async (req, res) => {
 const deletePart = asyncHandler(async (req, res) => {
   const { partId } = req.params;
 
-  await partServices.deletePartById(partId);
+  const partMeta = await models.Part.findByPk(partId);
+
+  if (!partMeta) {
+    throw new Error("Part not found");
+  }
+
+  const model = partServices.partTypeToModel(part.type);
+  const partSpec = await models[model].findOne({ where: { partId } });
+
+  if (!partSpec) {
+    throw new Error("Part not found");
+  }
+
+  await partMeta.destroy();
+  await partSpec.destroy();
 
   res.status(204).end();
 });
@@ -58,10 +95,12 @@ const deletePart = asyncHandler(async (req, res) => {
  * Create part review
  */
 const createPartReview = asyncHandler(async (req, res) => {
+  const { userId } = req.auth;
   const { partId } = req.params;
-  const userId = req.user.id;
+  const { message, rating } = req.body;
 
-  await partServices.createPartReview({ ...req.body, partId, userId });
+  await models.Review.create({ message, rating, partId, userId });
+
   const part = await partServices.getPartById(partId);
 
   res.status(201).send({ part });
@@ -72,8 +111,16 @@ const createPartReview = asyncHandler(async (req, res) => {
  */
 const updatePartReview = asyncHandler(async (req, res) => {
   const { partId, reviewId } = req.params;
+  const { message, rating } = req.body;
 
-  await partServices.updatePartReviewById(reviewId, req.body);
+  const review = await models.Review.findByPk(reviewId);
+
+  if (!review) {
+    throw new Error("Review not found");
+  }
+
+  await review.update({ message, rating });
+
   const part = await partServices.getPartById(partId);
 
   res.status(200).send({ part });
@@ -85,7 +132,14 @@ const updatePartReview = asyncHandler(async (req, res) => {
 const deletePartReview = asyncHandler(async (req, res) => {
   const { partId, reviewId } = req.params;
 
-  await partServices.deletePartReviewById(reviewId);
+  const review = await models.Review.findByPk(reviewId);
+
+  if (!review) {
+    throw new Error("Review not found");
+  }
+
+  await review.destroy();
+
   const part = await partServices.getPartById(partId);
 
   res.status(200).send({ part });

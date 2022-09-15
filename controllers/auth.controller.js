@@ -1,9 +1,9 @@
 import bcrypt from "bcrypt";
 import generator from "generate-password";
 import asyncHandler from "express-async-handler";
-import userServices from "../services/user.services.js";
 import tokenServices from "../services/token.services.js";
 import emailServices from "../services/email.services.js";
+import { models } from "../config/postgres.js";
 
 /**
  * Local sign up
@@ -17,13 +17,13 @@ const localSignUp = asyncHandler(async (req, res) => {
 
   const hashedPassword = await bcrypt.hash(passwordA, 10);
 
-  const userId = await userServices.createUser({
+  let user = await models.User.create({
     email,
     username,
     hashedPassword,
   });
 
-  const user = await userServices.getUserById(userId);
+  user = await models.User.findByPk(user.id, { raw: true });
 
   const token = await tokenServices.generateUserAccessToken(user.id);
 
@@ -40,12 +40,13 @@ const localSignUp = asyncHandler(async (req, res) => {
  * Local sign in
  */
 const localSignIn = asyncHandler(async (req, res) => {
-  const { username, password } = req.body;
-
-  const user = await userServices.getUserByUsername(username);
+  const user = await models.User.findOne({
+    where: { email: req.body.email },
+    raw: true,
+  });
 
   const match = user
-    ? await bcrypt.compare(password, user.hashedPassword)
+    ? await bcrypt.compare(req.body.password, user.hashedPassword)
     : false;
 
   if (!match) {
@@ -85,7 +86,15 @@ const appleSignIn = asyncHandler(async (req, res) => {
  * Request email verification
  */
 const requestEmailVerification = asyncHandler(async (req, res) => {
-  const user = await userServices.getUserById(req.body.userId);
+  const user = await models.User.findOne({
+    where: { email: req.body.email },
+    raw: true,
+  });
+
+  if (!user) {
+    throw new Error("User not found");
+  }
+
   const token = await tokenServices.generateEmailVerificationToken(user.id);
 
   await emailServices.sendEmailVerificationEmail(
@@ -102,7 +111,14 @@ const requestEmailVerification = asyncHandler(async (req, res) => {
  */
 const verifyEmail = asyncHandler(async (req, res) => {
   const token = await tokenServices.verifyToken(req.query.token);
-  await userServices.updateUserById(token.userId, { isVerified: true });
+  const user = await models.User.findByPk(token.userId);
+
+  if (!user) {
+    throw new Error("User not found");
+  }
+
+  await user.update({ isVerified: true });
+
   res.status(200).redirect("/");
 });
 
@@ -110,7 +126,15 @@ const verifyEmail = asyncHandler(async (req, res) => {
  * Request password reset
  */
 const requestPasswordReset = asyncHandler(async (req, res) => {
-  const user = await userServices.getUserByEmail(req.body.email);
+  const user = await models.User.findOne({
+    where: { email: req.body.email },
+    raw: true,
+  });
+
+  if (!user) {
+    throw new Error("User not found");
+  }
+
   const token = await tokenServices.generatePasswordResetToken(user.id);
 
   await emailServices.sendPasswordResetEmail(
@@ -127,12 +151,16 @@ const requestPasswordReset = asyncHandler(async (req, res) => {
  */
 const resetPassword = asyncHandler(async (req, res) => {
   const token = await tokenServices.verifyToken(req.query.token);
+  const user = await models.User.findByPk(token.userId);
+
+  if (!user) {
+    throw new Error("User not found");
+  }
 
   const password = generator.generate({ length: 10, numbers: true });
   const hashedPassword = await bcrypt.hash(password, 10);
 
-  await userServices.updateUserById(token.userId, { hashedPassword });
-  const user = await userServices.getUserById(token.userId);
+  await user.update({ hashedPassword });
 
   await emailServices.sendTemporaryPasswordEmail(
     user.username,

@@ -1,7 +1,13 @@
-export const ssoProviders = {
-  GOOGLE: "google",
-  FACEBOOK: "facebook",
-  APPLE: "apple",
+export const roles = {
+  user: "user",
+  admin: "admin",
+};
+
+export const providers = {
+  local: "local",
+  google: "google",
+  facebook: "facebook",
+  apple: "apple",
 };
 
 const getUserModel = (sequelize, { DataTypes }) => {
@@ -10,22 +16,6 @@ const getUserModel = (sequelize, { DataTypes }) => {
       type: DataTypes.UUID,
       defaultValue: DataTypes.UUIDV4,
       primaryKey: true,
-    },
-    ssoId: {
-      type: DataTypes.STRING,
-      unique: true,
-      allowNull: true,
-      validate: {
-        notEmpty: true,
-      },
-    },
-    ssoProvider: {
-      type: DataTypes.STRING,
-      allowNull: true,
-      validate: {
-        notEmpty: true,
-        isIn: [Object.values(ssoProviders)],
-      },
     },
     username: {
       type: DataTypes.STRING,
@@ -58,7 +48,18 @@ const getUserModel = (sequelize, { DataTypes }) => {
     role: {
       type: DataTypes.STRING,
       allowNull: false,
-      defaultValue: "USER",
+      defaultValue: roles.user,
+      validate: {
+        isIn: [Object.values(roles)],
+      },
+    },
+    provider: {
+      type: DataTypes.STRING,
+      allowNull: true,
+      defaultValue: providers.local,
+      validate: {
+        isIn: [Object.values(providers)],
+      },
     },
   });
 

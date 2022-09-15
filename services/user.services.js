@@ -1,13 +1,13 @@
 import { models } from "../config/postgres.js";
 
 /**
- * Get user
+ * Get user by ID
  *
- * @param {object} config
- * @returns {Promise<object>} user
+ * @param {Object} config
+ * @returns {Promise<Object>} user
  */
-const getUser = async (config) => {
-  const user = await models.User.findOne({ ...config, raw: true });
+const getUserById = async (userId) => {
+  const user = await models.User.findByPk(userId, { raw: true });
 
   if (!user) {
     throw new Error("User not found");
@@ -19,77 +19,26 @@ const getUser = async (config) => {
 };
 
 /**
- * Get user by ID
+ * Query users
  *
- * @param {string} userId
- * @returns {Promise<object>} user
+ * @param {Object} config
+ * @return {Promise<Array>} part
  */
-const getUserById = async (userId) => {
-  return await getUser({ where: { id: userId } });
-};
+const queryUsers = async (config = {}) => {
+  const users = await models.User.findAll({
+    ...config,
+    attributes: ["id"],
+    raw: true,
+  });
 
-/**
- * Get user by SSO ID
- *
- * @param {string} ssoId
- * @returns {Promise<object>} user
- */
-const getUserBySsoId = async (ssoId) => {
-  return await getUser({ where: { ssoId } });
-};
-
-/**
- * Get user by email
- *
- * @param {string} email
- * @returns {Promise<object>} user
- */
-const getUserByEmail = async (email) => {
-  return await getUser({ where: { email } });
-};
-
-/**
- * Get user by username
- *
- * @param {string} username
- * @returns {Promise<object>} user
- */
-const getUserByUsername = async (username) => {
-  return await getUser({ where: { username } });
-};
-
-/**
- * Create user
- *
- * @param {object} body
- * @returns {Promise<string>} userId
- */
-const createUser = async (body) => {
-  const user = await models.User.create(body);
-  return user.id;
-};
-
-/**
- * Update user by id
- *
- * @async
- * @param {string} userId
- */
-const updateUserById = async (userId, body) => {
-  const user = await models.User.findByPk(userId);
-
-  if (!user) {
-    throw new Error("User not found");
-  }
-
-  await user.update(body);
+  return await Promise.all(
+    users.map(async (user) => {
+      return await getUserById(user.id);
+    })
+  );
 };
 
 export default {
   getUserById,
-  getUserBySsoId,
-  getUserByEmail,
-  getUserByUsername,
-  createUser,
-  updateUserById,
+  queryUsers,
 };

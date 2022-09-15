@@ -2,9 +2,10 @@ import aws from "../config/aws.js";
 
 /**
  * Send email verification email
- * @param {string} username
- * @param {string} email
- * @param {string} token
+ *
+ * @param {String} username
+ * @param {String} email
+ * @param {String} token
  * @returns {Promise}
  */
 const sendEmailVerificationEmail = async (username, email, token) => {
@@ -18,9 +19,10 @@ const sendEmailVerificationEmail = async (username, email, token) => {
 
 /**
  * Send email password reset
- * @param {string} username
- * @param {string} email
- * @param {string} token
+ *
+ * @param {String} username
+ * @param {String} email
+ * @param {String} token
  * @returns {Promise}
  */
 const sendPasswordResetEmail = async (username, email, token) => {
@@ -34,9 +36,10 @@ const sendPasswordResetEmail = async (username, email, token) => {
 
 /**
  * Send temporary password email
- * @param {string} username
- * @param {string} email
- * @param {string} password
+ *
+ * @param {String} username
+ * @param {String} email
+ * @param {String} password
  * @returns {Promise}
  */
 const sendTemporaryPasswordEmail = async (username, email, password) => {

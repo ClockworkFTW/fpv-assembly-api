@@ -1,87 +1,95 @@
 import jwt from "jsonwebtoken";
+import { v5 as uuidv5 } from "uuid";
 import GoogleStrategy from "passport-google-oauth20";
 import FacebookStrategy from "passport-facebook";
 import AppleStrategy from "passport-apple";
-import userServices from "../services/user.services.js";
-import { ssoProviders } from "../models/user.model.js";
+import { providers } from "../models/user.model.js";
+import { models } from "../config/postgres.js";
 import config from "./variables.js";
-
-const googleVerify = async (req, accToken, refToken, profile, cb) => {
-  try {
-    let user = await userServices.getUserBySsoId(profile.id);
-
-    if (!user) {
-      user = await req.models.User.create({
-        isVerified: true,
-        ssoId: profile.id,
-        ssoProvider: ssoProviders.GOOGLE,
-        username: profile.displayName,
-        email: profile.emails[0].value,
-      });
-    }
-
-    cb(null, user);
-  } catch (error) {
-    cb(true, null);
-  }
-};
 
 const googleStrategy = new GoogleStrategy(
   config.passport.provider.google,
-  googleVerify
-);
+  async (req, accToken, refToken, profile, cb) => {
+    try {
+      const userId = uuidv5(profile.id, config.namespace);
+      let user = await models.User.findByPk(userId);
 
-const facebookVerify = async (req, accToken, refToken, profile, cb) => {
-  try {
-    let user = await userServices.getUserBySsoId(profile.id);
+      if (!user) {
+        await models.User.create({
+          id: uuidv5(profile.id, config.namespace),
+          username: profile.displayName,
+          email: profile.emails[0]?.value,
+          provider: providers.google,
+          isVerified: true,
+        });
 
-    if (!user) {
-      user = await req.models.User.create({
-        isVerified: true,
-        ssoId: profile.id,
-        ssoProvider: ssoProviders.FACEBOOK,
-        username: profile.displayName,
-        email: profile.emails[0].value,
-      });
+        user = await models.User.findByPk(userId, { raw: true });
+      }
+
+      cb(null, user);
+    } catch (error) {
+      console.log(error); // REMOVE
+      cb("Google sign in failed", null);
     }
-
-    cb(null, user);
-  } catch (error) {
-    cb(true, null);
   }
-};
+);
 
 const facebookStrategy = new FacebookStrategy(
   config.passport.provider.facebook,
-  facebookVerify
-);
+  async (req, accToken, refToken, profile, cb) => {
+    try {
+      const userId = uuidv5(profile.id, config.namespace);
+      let user = await models.User.findByPk(userId);
 
-const appleVerify = async (req, accToken, refToken, idToken, profile, cb) => {
-  try {
-    profile = jwt.decode(idToken);
+      if (!user) {
+        await models.User.create({
+          id: uuidv5(profile.id, config.namespace),
+          username: profile.displayName,
+          email: profile.emails[0]?.value,
+          provider: providers.google,
+          isVerified: true,
+        });
 
-    let user = await userServices.getUserBySsoId(profile.id);
+        user = await models.User.findByPk(userId, { raw: true });
+      }
 
-    if (!user) {
-      const { name, email } = JSON.parse(req.body.user);
-      user = await req.models.User.create({
-        isVerified: true,
-        ssoId: profile.sub,
-        ssoProvider: ssoProviders.APPLE,
-        username: `${name.firstName} ${name.lastName}`,
-        email,
-      });
+      cb(null, user);
+    } catch (error) {
+      console.log(error); // REMOVE
+      cb("Facebook sign in failed", null);
     }
-
-    cb(null, user);
-  } catch (error) {
-    cb(true, null);
   }
-};
+);
 
 const appleStrategy = new AppleStrategy(
   config.passport.provider.apple,
-  appleVerify
+  async (req, accToken, refToken, idToken, profile, cb) => {
+    try {
+      profile = jwt.decode(idToken);
+
+      const userId = uuidv5(profile.sub, config.namespace);
+      let user = await models.User.findByPk(userId, { raw: true });
+
+      if (!user) {
+        const { name, email } = JSON.parse(req.body.user);
+
+        await models.User.create({
+          id: userId,
+          username: `${name.firstName} ${name.lastName}`,
+          email: email,
+          provider: providers.apple,
+          isVerified: true,
+        });
+
+        user = await models.User.findByPk(userId, { raw: true });
+      }
+
+      cb(null, user);
+    } catch (error) {
+      console.log(error); // REMOVE
+      cb("Apple sign in failed", null);
+    }
+  }
 );
 
 export default { googleStrategy, facebookStrategy, appleStrategy };

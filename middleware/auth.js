@@ -1,7 +1,7 @@
 import userServices from "../services/user.services.js";
 import tokenServices from "../services/token.services.js";
 
-const auth = async (req, res, next) => {
+const auth = (roles) => async (req, res, next) => {
   try {
     if (!req.cookies.token) {
       throw new Error("Token missing");
@@ -14,7 +14,11 @@ const auth = async (req, res, next) => {
       throw new Error("User not verified");
     }
 
-    req.user = user;
+    if (!roles.includes(user.role)) {
+      throw new Error("User not authorized");
+    }
+
+    req.auth = { userId: user.id };
 
     next();
   } catch (error) {

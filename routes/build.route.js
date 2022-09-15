@@ -1,36 +1,100 @@
 import express from "express";
-import buildController from "../controllers/build.controller.js";
 import auth from "../middleware/auth.js";
 import upload from "../middleware/upload.js";
+import { roles } from "../models/user.model.js";
+import validate from "../middleware/validate.js";
+import buildValidation from "../validations/build.validation.js";
+import buildController from "../controllers/build.controller.js";
 
 const router = express.Router();
 
-router.post("/", auth, buildController.createBuild);
-
+/**
+ * Get builds
+ */
 router.get("/", buildController.getBuilds);
 
-router.get("/:buildId", buildController.getBuild);
+/**
+ * Get build
+ */
+router.get(
+  "/:buildId",
+  validate(buildValidation.getBuild),
+  buildController.getBuild
+);
 
-router.patch("/:buildId", auth, buildController.updateBuild);
+/**
+ * Create build
+ */
+router.post("/", auth([roles.user, roles.admin]), buildController.createBuild);
 
-router.delete("/:buildId", auth, buildController.deleteBuild);
+/**
+ * Update build
+ */
+router.patch(
+  "/:buildId",
+  auth([roles.user, roles.admin]),
+  validate(buildValidation.updateBuild),
+  buildController.updateBuild
+);
 
-router.post("/:buildId/parts", auth, buildController.createBuildPart);
+/**
+ * Delete build
+ */
+router.delete(
+  "/:buildId",
+  auth([roles.user, roles.admin]),
+  validate(buildValidation.deleteBuild),
+  buildController.deleteBuild
+);
 
-router.patch("/:buildId/parts/:partId", auth, buildController.updateBuildPart);
+/**
+ * Create build part
+ */
+router.post(
+  "/:buildId/parts",
+  auth([roles.user, roles.admin]),
+  validate(buildValidation.createBuildPart),
+  buildController.createBuildPart
+);
 
-router.delete("/:buildId/parts/:partId", auth, buildController.deleteBuildPart);
+/**
+ * Update build part
+ */
+router.patch(
+  "/:buildId/parts/:partId",
+  auth([roles.user, roles.admin]),
+  validate(buildValidation.updateBuildPart),
+  buildController.updateBuildPart
+);
 
+/**
+ * Delete build part
+ */
+router.delete(
+  "/:buildId/parts/:partId",
+  auth([roles.user, roles.admin]),
+  validate(buildValidation.deleteBuildPart),
+  buildController.deleteBuildPart
+);
+
+/**
+ * Create build image
+ */
 router.post(
   "/:buildId/images",
-  auth,
+  auth([roles.user, roles.admin]),
   upload("build-images"),
+  validate(buildValidation.createBuildImage),
   buildController.createBuildImage
 );
 
+/**
+ * Delete build image
+ */
 router.delete(
   "/:buildId/images/:imageId",
-  auth,
+  auth([roles.user, roles.admin]),
+  validate(buildValidation.deleteBuildImage),
   buildController.deleteBuildImage
 );
 

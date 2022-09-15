@@ -7,11 +7,11 @@ import { tokenTypes } from "../models/token.model.js";
 /**
  * Generate token
  *
- * @param {string} type
- * @param {string} userId
- * @param {integer} expirationInterval
- * @param {string} expirationUnit
- * @returns {string} token
+ * @param {String} type
+ * @param {String} userId
+ * @param {Integer} expirationInterval
+ * @param {String} expirationUnit
+ * @returns {String} token
  */
 const generateToken = (type, userId, expirationInterval, expirationUnit) => {
   const payload = {
@@ -27,8 +27,8 @@ const generateToken = (type, userId, expirationInterval, expirationUnit) => {
 /**
  * Generate access token
  *
- * @param {string} userId
- * @returns {Promise<object>} token
+ * @param {String} userId
+ * @returns {Promise<Object>} token
  */
 const generateUserAccessToken = async (userId) => {
   const type = tokenTypes.USER_ACCESS;
@@ -46,8 +46,8 @@ const generateUserAccessToken = async (userId) => {
 /**
  * Generate email verification token
  *
- * @param {string} userId
- * @returns {Promise<object>} token
+ * @param {String} userId
+ * @returns {Promise<Object>} token
  */
 const generateEmailVerificationToken = async (userId) => {
   const type = tokenTypes.EMAIL_VERIFICATION;
@@ -65,8 +65,8 @@ const generateEmailVerificationToken = async (userId) => {
 /**
  * Generate password reset token
  *
- * @param {string} userId
- * @returns {Promise<object>} token
+ * @param {String} userId
+ * @returns {Promise<Object>} token
  */
 const generatePasswordResetToken = async (userId) => {
   const type = tokenTypes.PASSWORD_RESET;
@@ -84,8 +84,8 @@ const generatePasswordResetToken = async (userId) => {
 /**
  * Verify token
  *
- * @param {string} token
- * @returns {Promise<object>} token
+ * @param {String} token
+ * @returns {Promise<Object>} token
  */
 const verifyToken = async (token) => {
   let payload;

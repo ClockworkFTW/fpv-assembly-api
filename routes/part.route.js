@@ -1,30 +1,82 @@
 import express from "express";
-import partController from "../controllers/part.controller.js";
 import auth from "../middleware/auth.js";
+import { roles } from "../models/user.model.js";
+import validate, { validatePart } from "../middleware/validate.js";
+import partValidation, { partSchemas } from "../validations/part.validation.js";
+import partController from "../controllers/part.controller.js";
 
 const router = express.Router();
 
+/**
+ * Get parts
+ */
 router.get("/", partController.getParts);
 
-router.get("/:partId", partController.getPart);
+/**
+ * Get part
+ */
+router.get(
+  "/:partId",
+  validate(partValidation.getPart),
+  partController.getPart
+);
 
-router.post("/", auth, partController.createPart);
+/**
+ * Create part
+ */
+router.post(
+  "/",
+  auth([roles.admin]),
+  validate(partValidation.createPart),
+  validatePart(partSchemas),
+  partController.createPart
+);
 
-router.patch("/:partId", auth, partController.updatePart);
+/**
+ * Update part
+ */
+router.patch(
+  "/:partId",
+  auth([roles.admin]),
+  validate(partValidation.updatePart),
+  validatePart(partSchemas),
+  partController.updatePart
+);
 
-router.delete("/:partId", auth, partController.deletePart);
+/**
+ * Delete part
+ */
+router.delete(
+  "/:partId",
+  auth([roles.admin]),
+  validate(partValidation.deletePart),
+  partController.deletePart
+);
 
-router.post("/:partId/reviews", auth, partController.createPartReview);
+/**
+ * Create part review
+ */
+router.post(
+  "/:partId/reviews",
+  auth([roles.user, roles.admin]),
+  partController.createPartReview
+);
 
+/**
+ * Update part review
+ */
 router.patch(
   "/:partId/reviews/:reviewId",
-  auth,
+  auth([roles.user, roles.admin]),
   partController.updatePartReview
 );
 
+/**
+ * Delete part review
+ */
 router.delete(
   "/:partId/reviews/:reviewId",
-  auth,
+  auth([roles.user, roles.admin]),
   partController.deletePartReview
 );
 

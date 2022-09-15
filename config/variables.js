@@ -89,4 +89,6 @@ const passport = {
 
 const logs = app.env === "production" ? "combined" : "dev";
 
-export default { app, jwt, postgres, aws, passport, logs };
+const namespace = process.env.UUID_NAMESPACE;
+
+export default { app, jwt, postgres, aws, passport, logs, namespace };
