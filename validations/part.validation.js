@@ -1,5 +1,11 @@
 import Joi from "joi";
 
+const getParts = {
+  query: Joi.object({
+    type: Joi.string(),
+  }),
+};
+
 const getPart = {
   params: Joi.object({
     partId: Joi.string().required(),
@@ -140,6 +146,7 @@ export const partSchemas = {
 };
 
 export default {
+  getParts,
   getPart,
   createPart,
   updatePart,

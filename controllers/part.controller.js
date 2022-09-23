@@ -6,7 +6,9 @@ import { models } from "../config/postgres.js";
  * Get parts
  */
 const getParts = asyncHandler(async (req, res) => {
-  const parts = await partServices.queryParts();
+  const { type } = req.query;
+
+  const parts = await partServices.queryParts(type && { where: { type } });
 
   res.status(200).send({ parts });
 });

@@ -10,7 +10,7 @@ const router = express.Router();
 /**
  * Get parts
  */
-router.get("/", partController.getParts);
+router.get("/", validate(partValidation.getParts), partController.getParts);
 
 /**
  * Get part

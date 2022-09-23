@@ -7,7 +7,7 @@ import { models } from "../config/postgres.js";
  * @return {String} model name
  */
 export const partTypeToModel = (partType) => {
-  let words = partType.split(" ");
+  let words = partType.split("-");
   words = words.map((w) => w[0].toUpperCase() + w.slice(1).toLowerCase());
   return words.join("");
 };
