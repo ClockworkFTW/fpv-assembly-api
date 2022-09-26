@@ -95,4 +95,14 @@ router.post(
  */
 router.get("/reset-password", authController.resetPassword);
 
+/**
+ * Refresh access token
+ */
+router.get("/refresh-access-token", authController.refreshAccessToken);
+
+/**
+ * Sign out
+ */
+router.post("/sign-out", authController.signOut);
+
 export default router;

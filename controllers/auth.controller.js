@@ -5,6 +5,14 @@ import tokenServices from "../services/token.services.js";
 import emailServices from "../services/email.services.js";
 import { models } from "../config/postgres.js";
 
+// TODO: Move to config?
+const cookieOptions = {
+  httpOnly: true,
+  sameSite: "None",
+  secure: true,
+  maxAge: 60 * 60 * 1000, // 1 hour
+};
+
 /**
  * Local sign up
  */
@@ -25,15 +33,24 @@ const localSignUp = asyncHandler(async (req, res) => {
 
   user = await models.User.findByPk(user.id, { raw: true });
 
-  const token = await tokenServices.generateUserAccessToken(user.id);
+  const emailVerificationToken =
+    await tokenServices.generateEmailVerificationToken(user.id);
 
   await emailServices.sendEmailVerificationEmail(
     user.username,
     user.email,
-    token.value
+    emailVerificationToken.value
   );
 
-  res.status(200).cookie("token", token.value).end();
+  const refreshToken = await tokenServices.generateRefreshToken(user.id);
+
+  res.cookie("jwt", refreshToken.value, cookieOptions);
+
+  const accessToken = await tokenServices.generateAccessToken(
+    refreshToken.userId
+  );
+
+  res.status(200).json({ token: accessToken.value });
 });
 
 /**
@@ -53,33 +70,48 @@ const localSignIn = asyncHandler(async (req, res) => {
     throw new Error("Username or password incorrect");
   }
 
-  const token = await tokenServices.generateUserAccessToken(user.id);
+  const refreshToken = await tokenServices.generateRefreshToken(user.id);
 
-  res.status(200).cookie("token", token.value).end();
+  res.cookie("jwt", refreshToken.value, cookieOptions);
+
+  const accessToken = await tokenServices.generateAccessToken(
+    refreshToken.userId
+  );
+
+  res.status(200).json({ token: accessToken.value });
 });
 
 /**
  * Google sign in
  */
 const googleSignIn = asyncHandler(async (req, res) => {
-  const token = await tokenServices.generateUserAccessToken(req.user.id);
-  res.status(200).cookie("token", token.value).redirect("/");
+  const refreshToken = await tokenServices.generateRefreshToken(user.id);
+
+  res.cookie("jwt", refreshToken.value, cookieOptions);
+
+  res.status(200).redirect("/");
 });
 
 /**
  * Facebook sign in
  */
 const facebookSignIn = asyncHandler(async (req, res) => {
-  const token = await tokenServices.generateUserAccessToken(req.user.id);
-  res.status(200).cookie("token", token.value).redirect("/");
+  const refreshToken = await tokenServices.generateRefreshToken(user.id);
+
+  res.cookie("jwt", refreshToken.value, cookieOptions);
+
+  res.status(200).redirect("/");
 });
 
 /**
  * Apple sign in
  */
 const appleSignIn = asyncHandler(async (req, res) => {
-  const token = await tokenServices.generateUserAccessToken(req.user.id);
-  res.status(200).cookie("token", token.value).redirect("/");
+  const refreshToken = await tokenServices.generateRefreshToken(user.id);
+
+  res.cookie("jwt", refreshToken.value, cookieOptions);
+
+  res.status(200).redirect("/");
 });
 
 /**
@@ -107,22 +139,6 @@ const requestEmailVerification = asyncHandler(async (req, res) => {
 });
 
 /**
- * Verify email
- */
-const verifyEmail = asyncHandler(async (req, res) => {
-  const token = await tokenServices.verifyToken(req.query.token);
-  const user = await models.User.findByPk(token.userId);
-
-  if (!user) {
-    throw new Error("User not found");
-  }
-
-  await user.update({ isVerified: true });
-
-  res.status(200).redirect("/");
-});
-
-/**
  * Request password reset
  */
 const requestPasswordReset = asyncHandler(async (req, res) => {
@@ -147,10 +163,28 @@ const requestPasswordReset = asyncHandler(async (req, res) => {
 });
 
 /**
+ * Verify email
+ */
+const verifyEmail = asyncHandler(async (req, res) => {
+  const token = await tokenServices.verifyEmailVerificationToken(
+    req.query.token
+  );
+  const user = await models.User.findByPk(token.userId);
+
+  if (!user) {
+    throw new Error("User not found");
+  }
+
+  await user.update({ isVerified: true });
+
+  res.status(200).redirect("/");
+});
+
+/**
  * Reset password
  */
 const resetPassword = asyncHandler(async (req, res) => {
-  const token = await tokenServices.verifyToken(req.query.token);
+  const token = await tokenServices.verifyPasswordResetToken(req.query.token);
   const user = await models.User.findByPk(token.userId);
 
   if (!user) {
@@ -171,14 +205,48 @@ const resetPassword = asyncHandler(async (req, res) => {
   res.status(200).redirect("/");
 });
 
+/**
+ * Refresh access token
+ */
+const refreshAccessToken = asyncHandler(async (req, res) => {
+  if (!req.cookies?.jwt) {
+    throw new Error("Token missing");
+  }
+
+  const refreshToken = await tokenServices.verifyRefreshToken(req.cookies.jwt);
+
+  const accessToken = await tokenServices.generateAccessToken(
+    refreshToken.userId
+  );
+
+  res.status(200).json({ token: accessToken.value });
+});
+
+/**
+ * Sign Out
+ */
+const signOut = asyncHandler(async (req, res) => {
+  if (!req.cookies?.jwt) {
+    throw new Error("Token missing");
+  }
+
+  // TODO: Delete token from database?
+
+  res.clearCookie("jwt", cookieOptions);
+
+  res.status(200).end();
+});
+
 export default {
   localSignUp,
   localSignIn,
   googleSignIn,
   facebookSignIn,
   appleSignIn,
-  verifyEmail,
   requestEmailVerification,
-  resetPassword,
   requestPasswordReset,
+  verifyEmail,
+  resetPassword,
+  refreshAccessToken,
+  signOut,
 };

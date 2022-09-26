@@ -11,17 +11,18 @@ import { tokenTypes } from "../models/token.model.js";
  * @param {String} userId
  * @param {Integer} expirationInterval
  * @param {String} expirationUnit
+ * @param {String} secret
  * @returns {String} token
  */
-const generateToken = (type, userId, expirationInterval, expirationUnit) => {
+const generateToken = (type, userId, expInterval, expUnit, secret) => {
   const payload = {
     type,
     sub: userId,
     iat: dayjs().unix(),
-    exp: dayjs().add(expirationInterval, expirationUnit).unix(),
+    exp: dayjs().add(expInterval, expUnit).unix(),
   };
 
-  return jwt.sign(payload, config.jwt.secret);
+  return jwt.sign(payload, secret);
 };
 
 /**
@@ -30,14 +31,35 @@ const generateToken = (type, userId, expirationInterval, expirationUnit) => {
  * @param {String} userId
  * @returns {Promise<Object>} token
  */
-const generateUserAccessToken = async (userId) => {
-  const type = tokenTypes.USER_ACCESS;
+const generateAccessToken = async (userId) => {
+  const type = tokenTypes.ACCESS;
 
   const token = generateToken(
     type,
     userId,
-    config.jwt.userAccessTokenExpirationInterval,
-    config.jwt.userAccessTokenExpirationUnit
+    config.jwt.accessToken.expirationInterval,
+    config.jwt.accessToken.expirationUnit,
+    config.jwt.accessToken.secret
+  );
+
+  return await models.Token.create({ type, userId, value: token });
+};
+
+/**
+ * Generate refresh token
+ *
+ * @param {String} userId
+ * @returns {Promise<Object>} token
+ */
+const generateRefreshToken = async (userId) => {
+  const type = tokenTypes.REFRESH;
+
+  const token = generateToken(
+    type,
+    userId,
+    config.jwt.refreshToken.expirationInterval,
+    config.jwt.refreshToken.expirationUnit,
+    config.jwt.refreshToken.secret
   );
 
   return await models.Token.create({ type, userId, value: token });
@@ -55,8 +77,9 @@ const generateEmailVerificationToken = async (userId) => {
   const token = generateToken(
     type,
     userId,
-    config.jwt.emailVerificationTokenExpirationInterval,
-    config.jwt.emailVerificationTokenExpirationUnit
+    config.jwt.emailVerificationToken.expirationInterval,
+    config.jwt.emailVerificationToken.expirationUnit,
+    config.jwt.emailVerificationToken.secret
   );
 
   return await models.Token.create({ type, userId, value: token });
@@ -74,8 +97,9 @@ const generatePasswordResetToken = async (userId) => {
   const token = generateToken(
     type,
     userId,
-    config.jwt.passwordResetTokenExpirationInterval,
-    config.jwt.passwordResetTokenExpirationUnit
+    config.jwt.passwordResetToken.expirationInterval,
+    config.jwt.passwordResetToken.expirationUnit,
+    config.jwt.passwordResetToken.secret
   );
 
   return await models.Token.create({ type, userId, value: token });
@@ -87,11 +111,11 @@ const generatePasswordResetToken = async (userId) => {
  * @param {String} token
  * @returns {Promise<Object>} token
  */
-const verifyToken = async (token) => {
+const verifyToken = async (token, secret) => {
   let payload;
 
   try {
-    payload = jwt.verify(token, config.jwt.secret);
+    payload = jwt.verify(token, secret);
   } catch (error) {
     throw new Error("Token invalid");
   }
@@ -112,9 +136,61 @@ const verifyToken = async (token) => {
   return token;
 };
 
+/**
+ * Verify access token
+ *
+ * @param {String} token
+ * @returns {Promise<Object>} token
+ */
+const verifyAccessToken = async (token) => {
+  const secret = config.jwt.accessToken.secret;
+
+  return await verifyToken(token, secret);
+};
+
+/**
+ * Verify refresh token
+ *
+ * @param {String} token
+ * @returns {Promise<Object>} token
+ */
+const verifyRefreshToken = async (token) => {
+  const secret = config.jwt.refreshToken.secret;
+
+  return await verifyToken(token, secret);
+};
+
+/**
+ * Verify email verification token
+ *
+ * @param {String} token
+ * @returns {Promise<Object>} token
+ */
+const verifyEmailVerificationToken = async (token) => {
+  const secret = config.jwt.emailVerificationToken.secret;
+
+  return await verifyToken(token, secret);
+};
+
+/**
+ * Verify password reset token
+ *
+ * @param {String} token
+ * @returns {Promise<Object>} token
+ */
+const verifyPasswordResetToken = async (token) => {
+  const secret = config.jwt.passwordResetToken.secret;
+
+  return await verifyToken(token, secret);
+};
+
 export default {
-  generateUserAccessToken,
+  generateAccessToken,
+  generateRefreshToken,
   generateEmailVerificationToken,
   generatePasswordResetToken,
-  verifyToken,
+  verifyAccessToken,
+  verifyRefreshToken,
+  verifyEmailVerificationToken,
+  verifyPasswordResetToken,
 };

@@ -1,7 +1,8 @@
 export const tokenTypes = {
-  USER_ACCESS: "user-access",
+  ACCESS: "access",
+  REFRESH: "refresh",
   PASSWORD_RESET: "password-reset",
-  EMAIL_VERIFICATION: "email-verificaiton",
+  EMAIL_VERIFICATION: "email-verification",
 };
 
 const getTokenModel = (sequelize, { DataTypes }) => {

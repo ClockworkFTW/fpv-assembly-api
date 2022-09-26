@@ -15,20 +15,34 @@ const app = {
   domain: process.env.DOMAIN,
 };
 
+const cors = {
+  origin: "https://jnb-app.ngrok.io", // TODO: Add to .env
+  credentials: true,
+};
+
 const jwt = {
-  secret: process.env.JWT_SECRET,
-  userAccessTokenExpirationInterval:
-    process.env.JWT_USER_ACCESS_TOKEN_EXPIRATION_INTERVAL,
-  userAccessTokenExpirationUnit:
-    process.env.JWT_USER_ACCESS_TOKEN_EXPIRATION_UNIT,
-  passwordResetTokenExpirationInterval:
-    process.env.JWT_PASSWORD_RESET_TOKEN_EXPIRATION_INTERVAL,
-  passwordResetTokenExpirationUnit:
-    process.env.JWT_PASSWORD_RESET_TOKEN_EXPIRATION_UNIT,
-  emailVerificationTokenExpirationInterval:
-    process.env.JWT_EMAIL_VERIFICATION_TOKEN_EXPIRATION_INTERVAL,
-  emailVerificationTokenExpirationUnit:
-    process.env.JWT_EMAIL_VERIFICATION_TOKEN_EXPIRATION_UNIT,
+  accessToken: {
+    secret: process.env.JWT_ACCESS_TOKEN_SECRET,
+    expirationInterval: process.env.JWT_ACCESS_TOKEN_EXPIRATION_INTERVAL,
+    expirationUnit: process.env.JWT_ACCESS_TOKEN_EXPIRATION_UNIT,
+  },
+  refreshToken: {
+    secret: process.env.JWT_REFRESH_TOKEN_SECRET,
+    expirationInterval: process.env.JWT_REFRESH_TOKEN_EXPIRATION_INTERVAL,
+    expirationUnit: process.env.JWT_REFRESH_TOKEN_EXPIRATION_UNIT,
+  },
+  passwordResetToken: {
+    secret: process.env.JWT_PASSWORD_RESET_TOKEN_SECRET,
+    expirationInterval:
+      process.env.JWT_PASSWORD_RESET_TOKEN_EXPIRATION_INTERVAL,
+    expirationUnit: process.env.JWT_PASSWORD_RESET_TOKEN_EXPIRATION_UNIT,
+  },
+  emailVerificationToken: {
+    secret: process.env.JWT_EMAIL_VERIFICATION_TOKEN_SECRET,
+    expirationInterval:
+      process.env.JWT_EMAIL_VERIFICATION_TOKEN_EXPIRATION_INTERVAL,
+    expirationUnit: process.env.JWT_EMAIL_VERIFICATION_TOKEN_EXPIRATION_UNIT,
+  },
 };
 
 const postgres =
@@ -91,4 +105,4 @@ const logs = app.env === "production" ? "combined" : "dev";
 
 const namespace = process.env.UUID_NAMESPACE;
 
-export default { app, jwt, postgres, aws, passport, logs, namespace };
+export default { app, cors, jwt, postgres, aws, passport, logs, namespace };
