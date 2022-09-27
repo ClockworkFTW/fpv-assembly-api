@@ -53,7 +53,7 @@ const updatePart = asyncHandler(async (req, res) => {
     throw new Error("Part not found");
   }
 
-  const model = partServices.partTypeToModel(part.type);
+  const model = partServices.partTypeToModel(partMeta.type);
   const partSpec = await models[model].findOne({ where: { partId } });
 
   if (!partSpec) {
@@ -80,7 +80,7 @@ const deletePart = asyncHandler(async (req, res) => {
     throw new Error("Part not found");
   }
 
-  const model = partServices.partTypeToModel(part.type);
+  const model = partServices.partTypeToModel(partMeta.type);
   const partSpec = await models[model].findOne({ where: { partId } });
 
   if (!partSpec) {

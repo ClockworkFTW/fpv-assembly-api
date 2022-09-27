@@ -1,12 +1,14 @@
+import httpStatus from "http-status";
 import userServices from "../services/user.services.js";
 import tokenServices from "../services/token.services.js";
+import ApiError from "../util/ApiError.js";
 
 const auth = (roles) => async (req, res, next) => {
   try {
-    const authHeader = req.headers.Authorization;
+    const authHeader = req.headers.authorization || req.headers.Authorization;
 
     if (!authHeader?.startsWith("Bearer ")) {
-      throw new Error("Token missing");
+      throw new ApiError(httpStatus.UNAUTHORIZED, "Token missing");
     }
 
     const jwt = authHeader.split(" ")[1];
@@ -15,11 +17,11 @@ const auth = (roles) => async (req, res, next) => {
     const user = await userServices.getUserById(accessToken.userId);
 
     if (!user.isVerified) {
-      throw new Error("User not verified");
+      throw new ApiError(httpStatus.UNAUTHORIZED, "User not verified");
     }
 
     if (!roles.includes(user.role)) {
-      throw new Error("User not authorized");
+      throw new ApiError(httpStatus.UNAUTHORIZED, "User not authorized");
     }
 
     req.auth = { userId: user.id };

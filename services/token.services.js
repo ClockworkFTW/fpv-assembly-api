@@ -1,8 +1,10 @@
+import httpStatus from "http-status";
 import dayjs from "dayjs";
 import jwt from "jsonwebtoken";
 import config from "../config/variables.js";
 import { models } from "../config/postgres.js";
 import { tokenTypes } from "../models/token.model.js";
+import ApiError from "../util/ApiError.js";
 
 /**
  * Generate token
@@ -117,7 +119,7 @@ const verifyToken = async (token, secret) => {
   try {
     payload = jwt.verify(token, secret);
   } catch (error) {
-    throw new Error("Token invalid");
+    throw new ApiError(httpStatus.UNAUTHORIZED, "Token invalid");
   }
 
   token = await models.Token.findOne({
@@ -130,7 +132,7 @@ const verifyToken = async (token, secret) => {
   });
 
   if (!token) {
-    throw new Error("Token invalid");
+    throw new ApiError(httpStatus.UNAUTHORIZED, "Token invalid");
   }
 
   return token;
