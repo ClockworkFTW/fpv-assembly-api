@@ -13,6 +13,9 @@ const cookieOptions = {
   maxAge: 60 * 60 * 1000, // 1 hour
 };
 
+// TODO: Move to config?
+const redirectURL = "https://jnb-app.ngrok.io";
+
 /**
  * Local sign up
  */
@@ -85,33 +88,33 @@ const localSignIn = asyncHandler(async (req, res) => {
  * Google sign in
  */
 const googleSignIn = asyncHandler(async (req, res) => {
-  const refreshToken = await tokenServices.generateRefreshToken(user.id);
+  const refreshToken = await tokenServices.generateRefreshToken(req.user.id);
 
   res.cookie("jwt", refreshToken.value, cookieOptions);
 
-  res.status(200).redirect("/");
+  res.status(200).redirect(redirectURL);
 });
 
 /**
  * Facebook sign in
  */
 const facebookSignIn = asyncHandler(async (req, res) => {
-  const refreshToken = await tokenServices.generateRefreshToken(user.id);
+  const refreshToken = await tokenServices.generateRefreshToken(req.user.id);
 
   res.cookie("jwt", refreshToken.value, cookieOptions);
 
-  res.status(200).redirect("/");
+  res.status(200).redirect(redirectURL);
 });
 
 /**
  * Apple sign in
  */
 const appleSignIn = asyncHandler(async (req, res) => {
-  const refreshToken = await tokenServices.generateRefreshToken(user.id);
+  const refreshToken = await tokenServices.generateRefreshToken(req.user.id);
 
   res.cookie("jwt", refreshToken.value, cookieOptions);
 
-  res.status(200).redirect("/");
+  res.status(200).redirect(redirectURL);
 });
 
 /**
@@ -177,7 +180,7 @@ const verifyEmail = asyncHandler(async (req, res) => {
 
   await user.update({ isVerified: true });
 
-  res.status(200).redirect("/");
+  res.status(200).redirect(`${redirectURL}/sign-in`);
 });
 
 /**
@@ -202,7 +205,7 @@ const resetPassword = asyncHandler(async (req, res) => {
     password
   );
 
-  res.status(200).redirect("/");
+  res.status(200).redirect(`${redirectURL}/sign-in`);
 });
 
 /**

@@ -1,8 +1,8 @@
 export const tokenTypes = {
-  ACCESS: "access",
-  REFRESH: "refresh",
-  PASSWORD_RESET: "password-reset",
-  EMAIL_VERIFICATION: "email-verification",
+  access: "access",
+  refresh: "refresh",
+  passwordReset: "password-reset",
+  emailVerification: "email-verification",
 };
 
 const getTokenModel = (sequelize, { DataTypes }) => {
@@ -20,7 +20,7 @@ const getTokenModel = (sequelize, { DataTypes }) => {
       },
     },
     value: {
-      type: DataTypes.STRING,
+      type: DataTypes.TEXT,
       unique: true,
       allowNull: false,
       validate: {

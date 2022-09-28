@@ -28,7 +28,7 @@ const googleStrategy = new GoogleStrategy(
 
       cb(null, user);
     } catch (error) {
-      console.log(error); // REMOVE
+      console.log(error); // TODO: Remove in prod
       cb("Google sign in failed", null);
     }
   }
@@ -46,7 +46,7 @@ const facebookStrategy = new FacebookStrategy(
           id: uuidv5(profile.id, config.namespace),
           username: profile.displayName,
           email: profile.emails[0]?.value,
-          provider: providers.google,
+          provider: providers.facebook,
           isVerified: true,
         });
 
@@ -55,7 +55,7 @@ const facebookStrategy = new FacebookStrategy(
 
       cb(null, user);
     } catch (error) {
-      console.log(error); // REMOVE
+      console.log(error); // TODO: Remove in prod
       cb("Facebook sign in failed", null);
     }
   }
@@ -86,7 +86,7 @@ const appleStrategy = new AppleStrategy(
 
       cb(null, user);
     } catch (error) {
-      console.log(error); // REMOVE
+      console.log(error); // TODO: Remove in prod
       cb("Apple sign in failed", null);
     }
   }

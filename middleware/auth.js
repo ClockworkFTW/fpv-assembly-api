@@ -17,11 +17,11 @@ const auth = (roles) => async (req, res, next) => {
     const user = await userServices.getUserById(accessToken.userId);
 
     if (!user.isVerified) {
-      throw new ApiError(httpStatus.UNAUTHORIZED, "User not verified");
+      throw new ApiError(httpStatus.FORBIDDEN, "User not verified");
     }
 
     if (!roles.includes(user.role)) {
-      throw new ApiError(httpStatus.UNAUTHORIZED, "User not authorized");
+      throw new ApiError(httpStatus.FORBIDDEN, "User not authorized");
     }
 
     req.auth = { userId: user.id };
