@@ -14,7 +14,8 @@ const seedParts = async () => {
   const records = fs.createReadStream(`${__dirname}/motors.csv`).pipe(parser);
 
   for await (const record of records) {
-    const { type, name, manufacturer, image, weight, ...partSpecs } = record;
+    const { type, name, manufacturer, image, weight, ...rest } = record;
+    const { getfpv, pyrodrone, racedayquads, ...partSpecs } = rest;
 
     const part = await models.Part.create({
       type,
@@ -29,6 +30,24 @@ const seedParts = async () => {
     await models[model].create({
       ...partSpecs,
       partId: part.id,
+    });
+
+    await models.Listing.create({
+      partId: part.id,
+      vendor: "getfpv",
+      link: getfpv,
+    });
+
+    await models.Listing.create({
+      partId: part.id,
+      vendor: "pyrodrone",
+      link: pyrodrone,
+    });
+
+    await models.Listing.create({
+      partId: part.id,
+      vendor: "racedayquads",
+      link: racedayquads,
     });
   }
 };

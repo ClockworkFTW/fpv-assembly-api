@@ -31,6 +31,25 @@ const getPartById = async (partId) => {
     raw: true,
   });
 
+  const listings = await models.Listing.findAll({
+    include: { model: models.Price, attributes: ["value", "createdAt"] },
+    attributes: ["vendor", "link"],
+    where: { partId },
+    nest: true,
+  });
+
+  const bestPrice = listings.reduce((price, listing) => {
+    const { prices } = listing.toJSON();
+
+    const lastPrice = prices[prices.length - 1].value;
+
+    if (price) {
+      return lastPrice < price ? lastPrice : price;
+    } else {
+      return lastPrice;
+    }
+  }, null);
+
   const reviews = await models.Review.findAll({
     include: { model: models.User, attributes: ["id", "username"] },
     attributes: { exclude: ["partId", "userId"] },
@@ -42,7 +61,14 @@ const getPartById = async (partId) => {
   const averageRating =
     reviews.reduce((sum, review) => sum + review.rating, 0) / reviews.length;
 
-  return { ...partMeta, ...partSpecs, reviews, averageRating };
+  return {
+    ...partMeta,
+    ...partSpecs,
+    listings,
+    bestPrice,
+    reviews,
+    averageRating,
+  };
 };
 
 /**

@@ -5,29 +5,8 @@ const getPriceModel = (sequelize, { DataTypes }) => {
       defaultValue: DataTypes.UUIDV4,
       primaryKey: true,
     },
-    vendor: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      validate: {
-        notEmpty: true,
-      },
-    },
     value: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      validate: {
-        notEmpty: true,
-      },
-    },
-    link: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      validate: {
-        notEmpty: true,
-      },
-    },
-    date: {
-      type: DataTypes.DATE,
+      type: DataTypes.FLOAT,
       allowNull: false,
       validate: {
         notEmpty: true,
@@ -36,7 +15,7 @@ const getPriceModel = (sequelize, { DataTypes }) => {
   });
 
   Price.associate = (models) => {
-    Price.belongsTo(models.Part);
+    Price.belongsTo(models.Listing);
   };
 
   return Price;

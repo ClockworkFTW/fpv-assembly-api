@@ -8,6 +8,7 @@ import getPartModel from "../models/part.model.js";
 import getReviewModel from "../models/review.model.js";
 import getBuildModel from "../models/build.model.js";
 import getBuildPartModel from "../models/build-part.model.js";
+import getListingModel from "../models/listing.model.js";
 import getPriceModel from "../models/price.model.js";
 import getImageModel from "../models/image.model.js";
 import getMotorModel from "../models/part-types/motor.js";
@@ -40,6 +41,7 @@ const models = {
   Review: getReviewModel(sequelize, Sequelize),
   Build: getBuildModel(sequelize, Sequelize),
   BuildPart: getBuildPartModel(sequelize, Sequelize),
+  Listing: getListingModel(sequelize, Sequelize),
   Price: getPriceModel(sequelize, Sequelize),
   Image: getImageModel(sequelize, Sequelize),
   Motor: getMotorModel(sequelize, Sequelize),
