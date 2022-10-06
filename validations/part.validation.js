@@ -22,6 +22,13 @@ const createPart = {
       weight: Joi.number().required(),
     }),
     specData: Joi.object().required(),
+    listings: Joi.array().items(
+      Joi.object({
+        vendor: Joi.string().required(),
+        price: Joi.number().required(),
+        link: Joi.string().required(),
+      })
+    ),
   }),
 };
 

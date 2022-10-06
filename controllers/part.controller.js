@@ -1,6 +1,9 @@
+import dayjs from "dayjs";
+import { v5 as uuidv5 } from "uuid";
 import asyncHandler from "express-async-handler";
 import partServices from "../services/part.services.js";
 import { models } from "../config/postgres.js";
+import config from "../config/variables.js";
 
 /**
  * Get parts
@@ -19,7 +22,12 @@ const getParts = asyncHandler(async (req, res) => {
 const getPart = asyncHandler(async (req, res) => {
   const { partId } = req.params;
 
-  const part = await partServices.getPartById(partId);
+  let part = await partServices.getPartById(partId);
+
+  const listings = await partServices.getPartListingsById(partId);
+  const reviews = await partServices.getPartReviewsById(partId);
+
+  part = { ...part, listings, reviews };
 
   res.status(200).send({ part });
 });
@@ -28,14 +36,33 @@ const getPart = asyncHandler(async (req, res) => {
  * Create part
  */
 const createPart = asyncHandler(async (req, res) => {
-  const { metaData, specData } = req.body;
+  const { metaData, specData, listings } = req.body;
 
-  let part = await models.Part.create(metaData);
+  // Create part meta data
+  const partMeta = await models.Part.create(metaData);
+  const partId = partMeta.id;
 
+  // Create part specification data
   const model = partServices.partTypeToModel(metaData.type);
-  await models[model].create({ ...specData, partId: part.id });
+  await models[model].create({ ...specData, partId });
 
-  part = await partServices.getPartById(part.id);
+  // Create part listings
+  await Promise.all(
+    listings.map(async ({ vendor, link, price }) => {
+      const listing = await models.Listing.create({ vendor, link, partId });
+
+      // Create initial part price
+      const value = price;
+      const listingId = listing.id;
+      const date = dayjs().format("YYYY-MM-DD");
+      const id = uuidv5(`${listingId}${date}${vendor}`, config.namespace);
+
+      await models.Price.create({ id, value, date, listingId });
+    })
+  );
+
+  // Return formatted part
+  const part = await partServices.getPartById(partId);
 
   res.status(201).send({ part });
 });

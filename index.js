@@ -6,10 +6,10 @@ import seedParts from "./models/part-seeds/index.js";
 
 const eraseDatabaseOnSync = false;
 
-sequelize.sync({ force: eraseDatabaseOnSync }).then(async () => {
-  app.listen(config.app.port, () => {
+sequelize.sync({ force: eraseDatabaseOnSync }).then(() => {
+  app.listen(config.app.port, async () => {
     if (eraseDatabaseOnSync) {
-      seedParts();
+      await seedParts();
     }
 
     logger.info(

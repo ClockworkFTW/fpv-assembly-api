@@ -31,44 +31,98 @@ const getPartById = async (partId) => {
     raw: true,
   });
 
-  const listings = await models.Listing.findAll({
-    include: { model: models.Price, attributes: ["value", "createdAt"] },
+  const rating = await getPartRatingById(partId);
+  const price = await getPartPriceById(partId);
+
+  return { ...partMeta, ...partSpecs, price, rating };
+};
+
+/**
+ * Get part price
+ *
+ * @param {String} partId
+ * @return {Promise<Number>} price
+ */
+const getPartPriceById = async (partId) => {
+  const listingIds = await models.Listing.findAll({
+    where: { partId },
+    attributes: ["id"],
+    raw: true,
+  });
+
+  const prices = await Promise.all(
+    listingIds.map(async ({ id }) => {
+      const { value } = await models.Price.findOne({
+        where: { listingId: id },
+        order: [["date", "DESC"]],
+        attributes: ["value"],
+        raw: true,
+      });
+      return value;
+    })
+  );
+
+  return Math.min(...prices);
+};
+
+/**
+ * Get part rating
+ *
+ * @param {String} partId
+ * @return {Promise<Object>} rating
+ */
+const getPartRatingById = async (partId) => {
+  const reviews = await getPartReviewsById(partId);
+
+  const count = reviews.length;
+  const value = reviews.reduce((sum, { rating }) => sum + rating, 0) / count;
+
+  return { count, value };
+};
+
+/**
+ * Get part listings
+ *
+ * @param {String} partId
+ * @return {Promise<Array>} listings
+ */
+const getPartListingsById = async (partId) => {
+  let listings = await models.Listing.findAll({
+    include: {
+      model: models.Price,
+      attributes: ["value", "date"],
+      order: [["date", "DESC"]],
+      separate: true,
+    },
     attributes: ["vendor", "link"],
     where: { partId },
     nest: true,
   });
 
-  const bestPrice = listings.reduce((price, listing) => {
-    const { prices } = listing.toJSON();
+  listings = listings.map((listing) => {
+    const { prices, ...rest } = listing.toJSON();
+    const currentPrice = prices[0].value;
+    return { ...rest, currentPrice, priceHistory: prices };
+  });
 
-    const lastPrice = prices[prices.length - 1].value;
+  return listings;
+};
 
-    if (price) {
-      return lastPrice < price ? lastPrice : price;
-    } else {
-      return lastPrice;
-    }
-  }, null);
-
+/**
+ * Get part reviews
+ *
+ * @param {String} partId
+ * @return {Promise<Array>} reviews
+ */
+const getPartReviewsById = async (partId) => {
   const reviews = await models.Review.findAll({
     include: { model: models.User, attributes: ["id", "username"] },
     attributes: { exclude: ["partId", "userId"] },
     where: { partId },
     nest: true,
-    raw: true,
   });
 
-  const averageRating =
-    reviews.reduce((sum, review) => sum + review.rating, 0) / reviews.length;
-
-  return {
-    ...partMeta,
-    ...partSpecs,
-    listings,
-    bestPrice,
-    reviews,
-    averageRating,
-  };
+  return reviews.map((review) => review.toJSON());
 };
 
 /**
@@ -94,5 +148,7 @@ const queryParts = async (config = {}) => {
 export default {
   partTypeToModel,
   getPartById,
+  getPartListingsById,
+  getPartReviewsById,
   queryParts,
 };
