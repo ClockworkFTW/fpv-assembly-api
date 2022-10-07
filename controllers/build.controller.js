@@ -7,7 +7,9 @@ import { models } from "../config/postgres.js";
  * Get builds
  */
 const getBuilds = asyncHandler(async (req, res) => {
-  const builds = await buildServices.queryBuilds();
+  const builds = await buildServices.queryBuilds({
+    where: { isPublished: true },
+  });
 
   res.status(200).send({ builds });
 });

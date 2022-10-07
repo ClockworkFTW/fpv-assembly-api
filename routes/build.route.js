@@ -51,7 +51,7 @@ router.delete(
  * Create build part
  */
 router.post(
-  "/:buildId/parts",
+  "/:buildId/parts/:partId",
   auth([roles.user, roles.admin]),
   validate(buildValidation.createBuildPart),
   buildController.createBuildPart
