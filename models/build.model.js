@@ -7,7 +7,7 @@ const getBuildModel = (sequelize, { DataTypes }) => {
     },
     name: {
       type: DataTypes.STRING,
-      allowNull: true,
+      allowNull: false,
       validate: {
         notEmpty: true,
       },
@@ -21,7 +21,6 @@ const getBuildModel = (sequelize, { DataTypes }) => {
     },
     isPublished: {
       type: DataTypes.BOOLEAN,
-      allowNull: false,
       defaultValue: false,
     },
   });

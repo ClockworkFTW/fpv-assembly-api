@@ -20,7 +20,7 @@ const seedParts = async () => {
 
   for (const record of records) {
     // Extract meta data from record
-    const { type, name, manufacturer, image, weight, ...rest } = record;
+    const { type, name, manufacturer, image, weight, price, ...rest } = record;
 
     // Extract part specifications and listings from record
     const { getfpv, pyrodrone, racedayquads, ...partSpecs } = rest;
@@ -32,6 +32,7 @@ const seedParts = async () => {
       manufacturer,
       image,
       weight,
+      currentPrice: price,
     });
 
     // Create part specifications

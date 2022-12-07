@@ -6,14 +6,14 @@ const getPartModel = (sequelize, { DataTypes }) => {
       primaryKey: true,
     },
     type: {
-      type: DataTypes.STRING,
+      type: DataTypes.TEXT,
       allowNull: false,
       validate: {
         notEmpty: true,
       },
     },
     name: {
-      type: DataTypes.STRING,
+      type: DataTypes.TEXT,
       allowNull: false,
       validate: {
         notEmpty: true,
@@ -27,18 +27,33 @@ const getPartModel = (sequelize, { DataTypes }) => {
       },
     },
     image: {
-      type: DataTypes.STRING,
+      type: DataTypes.TEXT,
       allowNull: false,
       validate: {
         notEmpty: true,
       },
     },
     weight: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.FLOAT,
       allowNull: false,
       validate: {
         notEmpty: true,
       },
+    },
+    currentPrice: {
+      type: DataTypes.FLOAT,
+      allowNull: false,
+      validate: {
+        notEmpty: true,
+      },
+    },
+    ratingCount: {
+      type: DataTypes.INTEGER,
+      defaultValue: 0,
+    },
+    ratingAverage: {
+      type: DataTypes.FLOAT,
+      defaultValue: 0,
     },
   });
 

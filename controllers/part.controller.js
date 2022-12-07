@@ -9,11 +9,51 @@ import config from "../config/variables.js";
  * Get parts
  */
 const getParts = asyncHandler(async (req, res) => {
-  const { type } = req.query;
+  const { type, page, ...rest } = req.query;
 
-  const parts = await partServices.queryParts(type && { where: { type } });
+  // Parse url query parameters
+  const query = Object.entries(rest).reduce(
+    (query, [key, val]) => ({ ...query, [key]: JSON.parse(val) }),
+    {}
+  );
 
-  res.status(200).send({ parts });
+  // Define database query parameters
+  const limit = 50;
+  const offset = limit * (page - 1);
+  const where = { ...partServices.initWhere("part", query), type };
+  const include = {
+    model: models[partServices.partTypeToModel(type)],
+    where: partServices.initWhere(type, query),
+  };
+
+  // Get parts from database
+  const parts = await models.Part.findAll({
+    limit,
+    offset,
+    where,
+    include,
+  });
+
+  // Initialize part filters
+  const metaFilter = await partServices.initPartsModelFilter("part", query);
+  const specFilter = await partServices.initPartsModelFilter(type, query);
+
+  // Build filter object
+  const filter = {
+    ...metaFilter,
+    ...specFilter,
+  };
+
+  // Get total part count
+  const { count } = await models.Part.findAndCountAll({ where, include });
+
+  // Build pagination object
+  const pagination = {
+    count: Math.ceil(count / limit),
+    page: Number(page),
+  };
+
+  res.status(200).send({ parts, filter, pagination });
 });
 
 /**
@@ -130,6 +170,8 @@ const createPartReview = asyncHandler(async (req, res) => {
 
   await models.Review.create({ message, rating, partId, userId });
 
+  await partServices.updatePartRating(partId);
+
   const part = await partServices.getPartById(partId);
 
   res.status(201).send({ part });
@@ -150,6 +192,8 @@ const updatePartReview = asyncHandler(async (req, res) => {
 
   await review.update({ message, rating });
 
+  await partServices.updatePartRating(partId);
+
   const part = await partServices.getPartById(partId);
 
   res.status(200).send({ part });
@@ -168,6 +212,8 @@ const deletePartReview = asyncHandler(async (req, res) => {
   }
 
   await review.destroy();
+
+  await partServices.updatePartRating(partId);
 
   const part = await partServices.getPartById(partId);
 

@@ -31,10 +31,11 @@ const getBuild = asyncHandler(async (req, res) => {
 const createBuild = asyncHandler(async (req, res) => {
   const { userId } = req.auth;
 
-  let [build] = await models.Build.findOrCreate({
-    where: { userId, isPublished: false },
-    raw: true,
-  });
+  const { username } = await models.User.findByPk(userId);
+
+  const name = `${username}'s Build`;
+
+  let build = await models.Build.create({ userId, name });
 
   build = await buildServices.getBuildById(build.id);
 
