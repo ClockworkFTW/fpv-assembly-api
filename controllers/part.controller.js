@@ -9,7 +9,7 @@ import config from "../config/variables.js";
  * Get parts
  */
 const getParts = asyncHandler(async (req, res) => {
-  const { type, page, ...rest } = req.query;
+  const { type, page, sort, ...rest } = req.query;
 
   // Parse url query parameters
   const query = Object.entries(rest).reduce(
@@ -20,11 +20,18 @@ const getParts = asyncHandler(async (req, res) => {
   // Define database query parameters
   const limit = 50;
   const offset = limit * (page - 1);
-  const where = { ...partServices.initWhere("part", query), type };
+
+  const where = {
+    ...partServices.initWhere("part", query),
+    type,
+  };
+
   const include = {
     model: models[partServices.partTypeToModel(type)],
     where: partServices.initWhere(type, query),
   };
+
+  const order = partServices.initOrder(type, sort);
 
   // Get parts from database
   const parts = await models.Part.findAll({
@@ -32,6 +39,7 @@ const getParts = asyncHandler(async (req, res) => {
     offset,
     where,
     include,
+    order,
   });
 
   // Initialize part filters

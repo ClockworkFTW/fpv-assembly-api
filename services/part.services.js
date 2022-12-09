@@ -44,6 +44,31 @@ const initWhere = (partType, query) => {
 };
 
 /**
+ * Initializes part model order
+ *
+ * @param {String} partType
+ * @param {String} sort
+ * @return {Object} order
+ */
+const initOrder = (partType, sort) => {
+  if (!sort) {
+    return [["createdAt", "DESC"]];
+  }
+
+  const column = sort.slice(1, sort.length);
+  const direction = sort[0] === "+" ? "ASC" : "DESC";
+
+  const model = partTypeToModel(partType);
+  const columns = models[model].getAttributes();
+
+  if (columns[column]) {
+    return [[models[model], column, direction]];
+  } else {
+    return [[column, direction]];
+  }
+};
+
+/**
  * Initializes part model filter
  *
  * @param {String} partType
@@ -262,6 +287,7 @@ const queryParts = async (config = {}) => {
 export default {
   partTypeToModel,
   initWhere,
+  initOrder,
   initPartsModelFilter,
   getPartById,
   getPartListingsById,
