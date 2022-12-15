@@ -31,11 +31,12 @@ const getBuild = asyncHandler(async (req, res) => {
 const createBuild = asyncHandler(async (req, res) => {
   const { userId } = req.auth;
 
-  const { username } = await models.User.findByPk(userId);
+  let build = await models.Build.create({ userId });
 
-  const name = `${username}'s Build`;
-
-  let build = await models.Build.create({ userId, name });
+  await models.User.update(
+    { activeBuildId: build.id },
+    { where: { id: userId } }
+  );
 
   build = await buildServices.getBuildById(build.id);
 
@@ -46,6 +47,7 @@ const createBuild = asyncHandler(async (req, res) => {
  * Update build
  */
 const updateBuild = asyncHandler(async (req, res) => {
+  const { userId } = req.auth;
   const { buildId } = req.params;
 
   let build = await models.Build.findByPk(buildId);
@@ -56,6 +58,13 @@ const updateBuild = asyncHandler(async (req, res) => {
 
   await build.update(req.body);
 
+  if (req.body.isPublished) {
+    await models.User.update(
+      { activeBuildId: null },
+      { where: { id: userId } }
+    );
+  }
+
   build = await buildServices.getBuildById(build.id);
 
   res.status(200).send({ build });
@@ -65,6 +74,7 @@ const updateBuild = asyncHandler(async (req, res) => {
  * Delete build
  */
 const deleteBuild = asyncHandler(async (req, res) => {
+  const { userId } = req.auth;
   const { buildId } = req.params;
 
   const build = await models.Build.findByPk(buildId);
@@ -74,6 +84,8 @@ const deleteBuild = asyncHandler(async (req, res) => {
   }
 
   await build.destroy();
+
+  await models.User.update({ activeBuildId: null }, { where: { id: userId } });
 
   res.status(200).end();
 });

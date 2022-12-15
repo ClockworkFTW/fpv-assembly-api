@@ -7,17 +7,11 @@ const getBuildModel = (sequelize, { DataTypes }) => {
     },
     name: {
       type: DataTypes.STRING,
-      allowNull: false,
-      validate: {
-        notEmpty: true,
-      },
+      defaultValue: "",
     },
     markdown: {
       type: DataTypes.TEXT,
-      allowNull: true,
-      validate: {
-        notEmpty: true,
-      },
+      defaultValue: "",
     },
     isPublished: {
       type: DataTypes.BOOLEAN,

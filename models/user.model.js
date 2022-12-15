@@ -61,6 +61,9 @@ const getUserModel = (sequelize, { DataTypes }) => {
         isIn: [Object.values(providers)],
       },
     },
+    activeBuildId: {
+      type: DataTypes.UUID,
+    },
   });
 
   User.associate = (models) => {

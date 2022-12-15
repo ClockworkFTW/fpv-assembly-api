@@ -3,10 +3,10 @@ import Sequelize from "sequelize";
 import config from "./variables.js";
 
 import getTokenModel from "../models/token.model.js";
+import getBuildModel from "../models/build.model.js";
 import getUserModel from "../models/user.model.js";
 import getPartModel from "../models/part.model.js";
 import getReviewModel from "../models/review.model.js";
-import getBuildModel from "../models/build.model.js";
 import getBuildPartModel from "../models/build-part.model.js";
 import getListingModel from "../models/listing.model.js";
 import getPriceModel from "../models/price.model.js";
