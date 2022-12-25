@@ -180,7 +180,9 @@ const verifyEmail = asyncHandler(async (req, res) => {
 
   await user.update({ isVerified: true });
 
-  res.status(200).redirect(`${redirectURL}/sign-in`);
+  res.clearCookie("jwt", cookieOptions);
+
+  res.status(200).redirect(`${redirectURL}/auth/sign-in`);
 });
 
 /**
@@ -205,7 +207,9 @@ const resetPassword = asyncHandler(async (req, res) => {
     password
   );
 
-  res.status(200).redirect(`${redirectURL}/sign-in`);
+  res.clearCookie("jwt", cookieOptions);
+
+  res.status(200).redirect(`${redirectURL}/auth/sign-in`);
 });
 
 /**
