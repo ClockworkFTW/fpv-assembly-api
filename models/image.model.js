@@ -1,3 +1,5 @@
+import aws from "../config/aws.js";
+
 const getImageModel = (sequelize, { DataTypes }) => {
   const Image = sequelize.define("image", {
     id: {
@@ -35,8 +37,13 @@ const getImageModel = (sequelize, { DataTypes }) => {
     },
   });
 
+  Image.afterDestroy(async (image) => {
+    await aws.deleteFile(image.bucket, image.key);
+  });
+
   Image.associate = (models) => {
-    Image.belongsTo(models.Build);
+    Image.belongsTo(models.User);
+    Image.belongsToMany(models.Build, { through: models.BuildImage });
   };
 
   return Image;

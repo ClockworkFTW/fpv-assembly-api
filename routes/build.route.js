@@ -78,14 +78,22 @@ router.delete(
 );
 
 /**
- * Create build image
+ * Upload build images
  */
 router.post(
   "/:buildId/images",
   auth([roles.user, roles.admin]),
   upload("build-images"),
-  validate(buildValidation.createBuildImage),
-  buildController.createBuildImage
+  buildController.uploadBuildImages
+);
+
+/**
+ * Reorder build images
+ */
+router.patch(
+  "/:buildId/images",
+  auth([roles.user, roles.admin]),
+  buildController.reorderBuildImages
 );
 
 /**

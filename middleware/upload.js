@@ -2,16 +2,18 @@ import Busboy from "busboy";
 import { v4 as uuidv4 } from "uuid";
 
 const upload = (folder) => async (req, res, next) => {
-  const fileSize = parseInt(req.headers["content-length"]) / 1024 / 1024;
-
-  if (fileSize > 2) {
-    return res.status(400).send({ message: "File too large" });
-  }
-
   const busboy = Busboy({ headers: req.headers });
 
-  let chunks = [];
-  let destination = null;
+  const fileSize = parseInt(req.headers["content-length"]) / 1024 / 1024;
+
+  busboy.on("field", (name, value, info) => {
+    if (name === "fileCount" && fileSize / value > 2) {
+      const message = "One or more files too large";
+      return res.status(400).send({ message });
+    }
+  });
+
+  const files = [];
 
   busboy.on("file", (name, file, info) => {
     const validFileType =
@@ -20,20 +22,27 @@ const upload = (folder) => async (req, res, next) => {
       info.mimeType == "image/png";
 
     if (!validFileType) {
-      return res.status(400).send({ message: "Incorrect file type" });
+      const message = "One or more incorrect file types";
+      return res.status(400).send({ message });
     }
 
+    const chunks = [];
+
     const fileType = info.mimeType.split("/")[1];
-    destination = `${folder}/${uuidv4()}.${fileType}`;
+    const destination = `${folder}/${uuidv4()}.${fileType}`;
 
     file.on("data", (data) => {
       chunks.push(data);
     });
+
+    file.on("end", () => {
+      const buffer = Buffer.concat(chunks);
+      files.push({ buffer, destination });
+    });
   });
 
   busboy.on("finish", async () => {
-    const buffer = Buffer.concat(chunks);
-    req.file = { buffer, destination };
+    req.files = files;
     next();
   });
 

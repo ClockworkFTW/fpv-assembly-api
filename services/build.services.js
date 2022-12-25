@@ -29,7 +29,22 @@ const getBuildById = async (buildId) => {
     })
   );
 
-  return { ...build, user, parts };
+  const buildImages = await models.BuildImage.findAll({
+    where: { buildId },
+    attributes: ["imageId", "index"],
+  });
+
+  const images = await Promise.all(
+    buildImages.map(async ({ imageId, index }) => {
+      const image = await models.Image.findByPk(imageId, {
+        attributes: ["id", "url"],
+        raw: true,
+      });
+      return { ...image, index };
+    })
+  );
+
+  return { ...build, user, parts, images };
 };
 
 /**

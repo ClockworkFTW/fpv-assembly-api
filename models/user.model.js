@@ -69,6 +69,7 @@ const getUserModel = (sequelize, { DataTypes }) => {
   User.associate = (models) => {
     User.hasMany(models.Build, { onDelete: "CASCADE" });
     User.hasMany(models.Review, { onDelete: "CASCADE" });
+    User.hasMany(models.Image, { onDelete: "CASCADE" });
   };
 
   return User;
