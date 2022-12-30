@@ -12,7 +12,17 @@ const updateBuild = {
   }),
   body: Joi.object({
     name: Joi.string(),
-    markdown: Joi.string(),
+    log: Joi.array().items(
+      Joi.object({
+        type: Joi.string().required(),
+        url: Joi.string(),
+        children: Joi.array().items(
+          Joi.object({
+            text: Joi.string().allow(""),
+          })
+        ),
+      })
+    ),
     isPublished: Joi.boolean(),
   }),
 };

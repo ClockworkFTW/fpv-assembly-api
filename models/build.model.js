@@ -9,9 +9,14 @@ const getBuildModel = (sequelize, { DataTypes }) => {
       type: DataTypes.STRING,
       defaultValue: "",
     },
-    markdown: {
-      type: DataTypes.TEXT,
-      defaultValue: "",
+    log: {
+      type: DataTypes.JSON,
+      defaultValue: [
+        {
+          type: "paragraph",
+          children: [{ text: "" }],
+        },
+      ],
     },
     isPublished: {
       type: DataTypes.BOOLEAN,
