@@ -33,20 +33,24 @@ const upload = (folder) => async (req, res, next) => {
       chunks.push(data);
     });
 
-    file.on("end", async () => {
-      const input = Buffer.concat(chunks);
-      const buffer = await sharp(input).webp({ quality: 50 }).toBuffer();
-      const destination = `${folder}/${uuidv4()}.webp`;
-      files.push({ buffer, destination });
+    file.on("end", () => {
+      const buffer = Buffer.concat(chunks);
+      const key = `${folder}/${uuidv4()}.webp`;
+      files.push(compressImage(buffer, key));
     });
   });
 
   busboy.on("finish", async () => {
-    req.files = files;
+    req.files = await Promise.all(files);
     next();
   });
 
   req.pipe(busboy);
+};
+
+const compressImage = async (buffer, key) => {
+  const body = await sharp(buffer).webp({ quality: 50 }).toBuffer();
+  return { body, key };
 };
 
 export default upload;

@@ -162,7 +162,7 @@ const uploadBuildImages = asyncHandler(async (req, res) => {
 
   await Promise.all(
     req.files.map(async (file, i) => {
-      const result = await aws.uploadFile(file.buffer, file.destination);
+      const result = await aws.uploadFile(file.body, file.key);
       const image = await models.Image.create({ ...result, userId });
       const index = (max || 0) + (typeof max === "number" ? i + 1 : i);
       await models.BuildImage.create({ index, buildId, imageId: image.id });
