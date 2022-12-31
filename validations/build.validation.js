@@ -11,7 +11,7 @@ const updateBuild = {
     buildId: Joi.string().required(),
   }),
   body: Joi.object({
-    name: Joi.string(),
+    name: Joi.string().allow(""),
     log: Joi.array().items(
       Joi.object({
         type: Joi.string().required(),
