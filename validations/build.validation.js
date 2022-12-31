@@ -15,6 +15,7 @@ const updateBuild = {
     log: Joi.array().items(
       Joi.object({
         type: Joi.string().required(),
+        align: Joi.string(),
         url: Joi.string(),
         children: Joi.array().items(
           Joi.object({

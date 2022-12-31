@@ -1,4 +1,5 @@
 import Busboy from "busboy";
+import sharp from "sharp";
 import { v4 as uuidv4 } from "uuid";
 
 const upload = (folder) => async (req, res, next) => {
@@ -8,7 +9,7 @@ const upload = (folder) => async (req, res, next) => {
 
   busboy.on("field", (name, value, info) => {
     if (name === "fileCount" && fileSize / value > 2) {
-      const message = "One or more files too large";
+      const message = "One or more files are too large";
       return res.status(400).send({ message });
     }
   });
@@ -22,21 +23,20 @@ const upload = (folder) => async (req, res, next) => {
       info.mimeType == "image/png";
 
     if (!validFileType) {
-      const message = "One or more incorrect file types";
+      const message = "One or more file types are invalid";
       return res.status(400).send({ message });
     }
 
     const chunks = [];
 
-    const fileType = info.mimeType.split("/")[1];
-    const destination = `${folder}/${uuidv4()}.${fileType}`;
-
     file.on("data", (data) => {
       chunks.push(data);
     });
 
-    file.on("end", () => {
-      const buffer = Buffer.concat(chunks);
+    file.on("end", async () => {
+      const input = Buffer.concat(chunks);
+      const buffer = await sharp(input).webp({ quality: 50 }).toBuffer();
+      const destination = `${folder}/${uuidv4()}.webp`;
       files.push({ buffer, destination });
     });
   });
