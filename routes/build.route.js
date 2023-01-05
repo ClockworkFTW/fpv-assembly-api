@@ -78,6 +78,66 @@ router.delete(
 );
 
 /**
+ * Create build comment
+ */
+router.post(
+  "/:buildId/comments",
+  auth([roles.user, roles.admin]),
+  validate(buildValidation.createBuildComment),
+  buildController.createBuildComment
+);
+
+/**
+ * Edit build comment
+ */
+router.patch(
+  "/:buildId/comments/:commentId",
+  auth([roles.user, roles.admin]),
+  validate(buildValidation.updateBuildComment),
+  buildController.updateBuildComment
+);
+
+/**
+ * Delete build comment
+ */
+router.delete(
+  "/:buildId/comments/:commentId",
+  auth([roles.user, roles.admin]),
+  validate(buildValidation.deleteBuildComment),
+  buildController.deleteBuildComment
+);
+
+/**
+ * Create build comment vote
+ */
+router.post(
+  "/:buildId/comments/:commentId/vote",
+  auth([roles.user, roles.admin]),
+  validate(buildValidation.createBuildCommentVote),
+  buildController.createBuildCommentVote
+);
+
+/**
+ * Edit build comment vote
+ */
+router.patch(
+  "/:buildId/comments/:commentId/vote",
+  auth([roles.user, roles.admin]),
+  validate(buildValidation.updateBuildCommentVote),
+  buildController.updateBuildCommentVote
+);
+
+/**
+ * Delete build comment vote
+ */
+router.delete(
+  "/:buildId/comments/:commentId/vote",
+  auth([roles.user, roles.admin]),
+  validate(buildValidation.deleteBuildCommentVote),
+  buildController.deleteBuildCommentVote
+);
+
+/**
  * Upload build images
  */
 router.post(

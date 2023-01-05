@@ -148,6 +148,136 @@ const deleteBuildPart = asyncHandler(async (req, res) => {
 });
 
 /**
+ * Create build comment
+ */
+const createBuildComment = asyncHandler(async (req, res) => {
+  const { userId } = req.auth;
+  const { buildId } = req.params;
+
+  await models.BuildComment.create({ ...req.body, buildId, userId });
+
+  res.sendStatus(201);
+});
+
+/**
+ * Update build comment
+ */
+const updateBuildComment = asyncHandler(async (req, res) => {
+  const { userId } = req.auth;
+  const { commentId } = req.params;
+
+  const comment = await models.BuildComment.findByPk(commentId);
+
+  if (!comment) {
+    throw new Error("Comment not found");
+  }
+
+  if (comment.userId !== userId) {
+    throw new Error("Comment cannot be edited");
+  }
+
+  await comment.update(req.body);
+
+  res.sendStatus(204);
+});
+
+/**
+ * Delete build comment
+ */
+const deleteBuildComment = asyncHandler(async (req, res) => {
+  const { userId } = req.auth;
+  const { commentId } = req.params;
+
+  const comment = await models.BuildComment.findByPk(commentId);
+
+  if (!comment) {
+    throw new Error("Comment not found");
+  }
+
+  if (comment.userId !== userId) {
+    throw new Error("Comment cannot be deleted");
+  }
+
+  await comment.destroy();
+
+  res.sendStatus(204);
+});
+
+/**
+ * Create build comment vote
+ */
+const createBuildCommentVote = asyncHandler(async (req, res) => {
+  const { userId } = req.auth;
+  const { commentId } = req.params;
+
+  const comment = await models.BuildComment.findByPk(commentId);
+
+  if (!comment) {
+    throw new Error("Comment not found");
+  }
+
+  await models.BuildCommentVote.create({
+    ...req.body,
+    buildCommentId: commentId,
+    userId,
+  });
+
+  res.sendStatus(201);
+});
+
+/**
+ * Update build comment vote
+ */
+const updateBuildCommentVote = asyncHandler(async (req, res) => {
+  const { userId } = req.auth;
+  const { commentId } = req.params;
+
+  const comment = await models.BuildComment.findByPk(commentId);
+
+  if (!comment) {
+    throw new Error("Comment not found");
+  }
+
+  const vote = await models.BuildCommentVote.findOne({
+    where: { buildCommentId: commentId },
+  });
+
+  if (!vote || vote.userId !== userId) {
+    throw new Error("Vote could not be cast");
+  }
+
+  await vote.update({ ...req.body });
+
+  res.sendStatus(201);
+});
+
+/**
+ * Delete build comment vote
+ */
+const deleteBuildCommentVote = asyncHandler(async (req, res) => {
+  const { userId } = req.auth;
+  const { commentId } = req.params;
+
+  const comment = await models.BuildComment.findByPk(commentId);
+
+  if (!comment) {
+    throw new Error("Comment not found");
+  }
+
+  const vote = await models.BuildCommentVote.findOne({
+    where: { buildCommentId: commentId },
+  });
+
+  if (!vote || vote.userId !== userId) {
+    throw new Error("Vote could not be cast");
+  }
+
+  await vote.destroy();
+
+  res.sendStatus(204);
+});
+
+/**
  * Upload build images
  */
 const uploadBuildImages = asyncHandler(async (req, res) => {
@@ -242,6 +372,12 @@ export default {
   createBuildPart,
   updateBuildPart,
   deleteBuildPart,
+  createBuildComment,
+  updateBuildComment,
+  deleteBuildComment,
+  createBuildCommentVote,
+  updateBuildCommentVote,
+  deleteBuildCommentVote,
   uploadBuildImages,
   reorderBuildImages,
   deleteBuildImage,

@@ -59,6 +59,59 @@ const deleteBuildPart = {
   }),
 };
 
+const createBuildComment = {
+  params: Joi.object({
+    buildId: Joi.string().required(),
+  }),
+  body: Joi.object({
+    message: Joi.string().required(),
+  }),
+};
+
+const updateBuildComment = {
+  params: Joi.object({
+    buildId: Joi.string().required(),
+    commentId: Joi.string().required(),
+  }),
+  body: Joi.object({
+    message: Joi.string().required(),
+  }),
+};
+
+const deleteBuildComment = {
+  params: Joi.object({
+    buildId: Joi.string().required(),
+    commentId: Joi.string().required(),
+  }),
+};
+
+const createBuildCommentVote = {
+  params: Joi.object({
+    buildId: Joi.string().required(),
+    commentId: Joi.string().required(),
+  }),
+  body: Joi.object({
+    vote: Joi.boolean().required(),
+  }),
+};
+
+const updateBuildCommentVote = {
+  params: Joi.object({
+    buildId: Joi.string().required(),
+    commentId: Joi.string().required(),
+  }),
+  body: Joi.object({
+    vote: Joi.boolean().required(),
+  }),
+};
+
+const deleteBuildCommentVote = {
+  params: Joi.object({
+    buildId: Joi.string().required(),
+    commentId: Joi.string().required(),
+  }),
+};
+
 const createBuildImage = {
   params: Joi.object({
     buildId: Joi.string().required(),
@@ -83,6 +136,12 @@ export default {
   createBuildPart,
   updateBuildPart,
   deleteBuildPart,
+  createBuildComment,
+  updateBuildComment,
+  deleteBuildComment,
+  createBuildCommentVote,
+  updateBuildCommentVote,
+  deleteBuildCommentVote,
   createBuildImage,
   deleteBuildImage,
 };

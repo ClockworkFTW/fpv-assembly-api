@@ -44,7 +44,25 @@ const getBuildById = async (buildId) => {
     })
   );
 
-  return { ...build, user, parts, images };
+  const buildComments = await models.BuildComment.findAll({
+    where: { buildId },
+    attributes: { exclude: ["buildId"] },
+    include: { model: models.User, attributes: ["id", "username"] },
+    nest: true,
+    raw: true,
+  });
+
+  const comments = await Promise.all(
+    buildComments.map(async (comment) => {
+      const votes = await models.BuildCommentVote.findAll({
+        where: { buildCommentId: comment.id },
+        attributes: ["userId", "vote"],
+      });
+      return { ...comment, votes };
+    })
+  );
+
+  return { ...build, user, parts, images, comments };
 };
 
 /**
