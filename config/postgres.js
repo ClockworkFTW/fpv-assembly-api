@@ -9,8 +9,9 @@ import getPartModel from "../models/part.model.js";
 import getReviewModel from "../models/review.model.js";
 import getBuildPartModel from "../models/build-part.model.js";
 import getBuildImageModel from "../models/build-image.model.js";
-import getBuildCommentModel from "../models/build-comment.model.js";
-import getBuildCommentVoteModel from "../models/build-comment-vote.model.js";
+import getCommentModel from "../models/comment.model.js";
+import getCommentChildModel from "../models/comment-child.model.js";
+import getCommentVoteModel from "../models/comment-vote.model.js";
 import getListingModel from "../models/listing.model.js";
 import getPriceModel from "../models/price.model.js";
 import getImageModel from "../models/image.model.js";
@@ -45,8 +46,9 @@ const models = {
   Build: getBuildModel(sequelize, Sequelize),
   BuildPart: getBuildPartModel(sequelize, Sequelize),
   BuildImage: getBuildImageModel(sequelize, Sequelize),
-  BuildComment: getBuildCommentModel(sequelize, Sequelize),
-  BuildCommentVote: getBuildCommentVoteModel(sequelize, Sequelize),
+  Comment: getCommentModel(sequelize, Sequelize),
+  CommentChild: getCommentChildModel(sequelize, Sequelize),
+  CommentVote: getCommentVoteModel(sequelize, Sequelize),
   Listing: getListingModel(sequelize, Sequelize),
   Price: getPriceModel(sequelize, Sequelize),
   Image: getImageModel(sequelize, Sequelize),

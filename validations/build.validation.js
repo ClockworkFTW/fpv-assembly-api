@@ -65,6 +65,7 @@ const createBuildComment = {
   }),
   body: Joi.object({
     message: Joi.string().required(),
+    parentId: Joi.string().allow(null),
   }),
 };
 

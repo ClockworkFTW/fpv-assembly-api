@@ -28,7 +28,7 @@ const getBuildModel = (sequelize, { DataTypes }) => {
     Build.belongsTo(models.User);
     Build.belongsToMany(models.Part, { through: models.BuildPart });
     Build.belongsToMany(models.Image, { through: models.BuildImage });
-    Build.hasMany(models.BuildComment, { onDelete: "CASCADE" });
+    Build.hasMany(models.Comment, { onDelete: "CASCADE" });
   };
 
   return Build;

@@ -153,8 +153,21 @@ const deleteBuildPart = asyncHandler(async (req, res) => {
 const createBuildComment = asyncHandler(async (req, res) => {
   const { userId } = req.auth;
   const { buildId } = req.params;
+  const { parentId, message } = req.body;
 
-  await models.BuildComment.create({ ...req.body, buildId, userId });
+  const comment = await models.Comment.create({
+    userId,
+    buildId,
+    parentId,
+    message,
+  });
+
+  if (parentId) {
+    await models.CommentChild.create({
+      commentId: parentId,
+      childId: comment.id,
+    });
+  }
 
   res.sendStatus(201);
 });
@@ -165,8 +178,9 @@ const createBuildComment = asyncHandler(async (req, res) => {
 const updateBuildComment = asyncHandler(async (req, res) => {
   const { userId } = req.auth;
   const { commentId } = req.params;
+  const { message } = req.body;
 
-  const comment = await models.BuildComment.findByPk(commentId);
+  const comment = await models.Comment.findByPk(commentId);
 
   if (!comment) {
     throw new Error("Comment not found");
@@ -176,7 +190,7 @@ const updateBuildComment = asyncHandler(async (req, res) => {
     throw new Error("Comment cannot be edited");
   }
 
-  await comment.update(req.body);
+  await comment.update({ message });
 
   res.sendStatus(204);
 });
@@ -188,7 +202,7 @@ const deleteBuildComment = asyncHandler(async (req, res) => {
   const { userId } = req.auth;
   const { commentId } = req.params;
 
-  const comment = await models.BuildComment.findByPk(commentId);
+  const comment = await models.Comment.findByPk(commentId);
 
   if (!comment) {
     throw new Error("Comment not found");
@@ -198,7 +212,7 @@ const deleteBuildComment = asyncHandler(async (req, res) => {
     throw new Error("Comment cannot be deleted");
   }
 
-  await comment.destroy();
+  await comment.update({ isDeleted: true });
 
   res.sendStatus(204);
 });
@@ -209,18 +223,15 @@ const deleteBuildComment = asyncHandler(async (req, res) => {
 const createBuildCommentVote = asyncHandler(async (req, res) => {
   const { userId } = req.auth;
   const { commentId } = req.params;
+  const { vote } = req.body;
 
-  const comment = await models.BuildComment.findByPk(commentId);
+  const comment = await models.Comment.findByPk(commentId);
 
   if (!comment) {
     throw new Error("Comment not found");
   }
 
-  await models.BuildCommentVote.create({
-    ...req.body,
-    buildCommentId: commentId,
-    userId,
-  });
+  await models.CommentVote.create({ userId, commentId, vote });
 
   res.sendStatus(201);
 });
@@ -232,14 +243,14 @@ const updateBuildCommentVote = asyncHandler(async (req, res) => {
   const { userId } = req.auth;
   const { commentId } = req.params;
 
-  const comment = await models.BuildComment.findByPk(commentId);
+  const comment = await models.Comment.findByPk(commentId);
 
   if (!comment) {
     throw new Error("Comment not found");
   }
 
-  const vote = await models.BuildCommentVote.findOne({
-    where: { buildCommentId: commentId },
+  const vote = await models.CommentVote.findOne({
+    where: { commentId },
   });
 
   if (!vote || vote.userId !== userId) {
@@ -258,14 +269,14 @@ const deleteBuildCommentVote = asyncHandler(async (req, res) => {
   const { userId } = req.auth;
   const { commentId } = req.params;
 
-  const comment = await models.BuildComment.findByPk(commentId);
+  const comment = await models.Comment.findByPk(commentId);
 
   if (!comment) {
     throw new Error("Comment not found");
   }
 
-  const vote = await models.BuildCommentVote.findOne({
-    where: { buildCommentId: commentId },
+  const vote = await models.CommentVote.findOne({
+    where: { commentId },
   });
 
   if (!vote || vote.userId !== userId) {

@@ -44,25 +44,66 @@ const getBuildById = async (buildId) => {
     })
   );
 
-  const buildComments = await models.BuildComment.findAll({
-    where: { buildId },
-    attributes: { exclude: ["buildId"] },
+  const comments = await getComments(buildId);
+
+  return { ...build, user, parts, images, comments };
+};
+
+const getComments = async (buildId) => {
+  // Get parent comments
+  const parents = await models.Comment.findAll({
+    where: { buildId, parentId: null },
     include: { model: models.User, attributes: ["id", "username"] },
+    attributes: { exclude: ["buildId", "userId"] },
     nest: true,
     raw: true,
   });
 
-  const comments = await Promise.all(
-    buildComments.map(async (comment) => {
-      const votes = await models.BuildCommentVote.findAll({
-        where: { buildCommentId: comment.id },
+  const getChildren = async (parent) => {
+    // Get child id's
+    const childIds = await models.CommentChild.findAll({
+      where: { commentId: parent.id },
+      attributes: ["childId"],
+      raw: true,
+    });
+
+    // Get children recursively
+    const children = await Promise.all(
+      childIds.map(async ({ childId }) => {
+        // Get child
+        const child = await models.Comment.findByPk(childId, {
+          include: { model: models.User, attributes: ["id", "username"] },
+          attributes: { exclude: ["buildId", "userId"] },
+          nest: true,
+          raw: true,
+        });
+
+        // Get votes
+        const votes = await models.CommentVote.findAll({
+          where: { commentId: child.id },
+          attributes: ["userId", "vote"],
+        });
+
+        return await getChildren({ ...child, votes });
+      })
+    );
+
+    // Return parent object with children
+    return { ...parent, children };
+  };
+
+  // Recursively get all child comments
+  return await Promise.all(
+    parents.map(async (parent) => {
+      // Get votes
+      const votes = await models.CommentVote.findAll({
+        where: { commentId: parent.id },
         attributes: ["userId", "vote"],
       });
-      return { ...comment, votes };
+
+      return await getChildren({ ...parent, votes });
     })
   );
-
-  return { ...build, user, parts, images, comments };
 };
 
 /**
