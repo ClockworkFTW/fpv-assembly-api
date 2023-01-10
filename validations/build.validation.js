@@ -113,6 +113,22 @@ const deleteBuildCommentVote = {
   }),
 };
 
+const createBuildLike = {
+  params: Joi.object({
+    buildId: Joi.string().required(),
+  }),
+  body: Joi.object({
+    likeId: Joi.string().required(),
+  }),
+};
+
+const deleteBuildLike = {
+  params: Joi.object({
+    buildId: Joi.string().required(),
+    likeId: Joi.string().required(),
+  }),
+};
+
 const createBuildImage = {
   params: Joi.object({
     buildId: Joi.string().required(),
@@ -143,6 +159,8 @@ export default {
   createBuildCommentVote,
   updateBuildCommentVote,
   deleteBuildCommentVote,
+  createBuildLike,
+  deleteBuildLike,
   createBuildImage,
   deleteBuildImage,
 };

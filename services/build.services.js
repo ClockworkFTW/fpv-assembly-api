@@ -46,7 +46,15 @@ const getBuildById = async (buildId) => {
 
   const comments = await getComments(buildId);
 
-  return { ...build, user, parts, images, comments };
+  const likes = await models.BuildLike.findAll({
+    where: { buildId },
+    attributes: { exclude: ["buildId", "createdAt", "updatedAt"] },
+    raw: true,
+  });
+
+  console.log(likes);
+
+  return { ...build, user, parts, images, comments, likes };
 };
 
 const getComments = async (buildId) => {

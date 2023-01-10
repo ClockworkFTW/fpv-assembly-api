@@ -138,6 +138,26 @@ router.delete(
 );
 
 /**
+ * Create build like
+ */
+router.post(
+  "/:buildId/likes",
+  auth([roles.user, roles.admin]),
+  validate(buildValidation.createBuildLike),
+  buildController.createBuildLike
+);
+
+/**
+ * Delete build like
+ */
+router.delete(
+  "/:buildId/likes/:likeId",
+  auth([roles.user, roles.admin]),
+  validate(buildValidation.deleteBuildLike),
+  buildController.deleteBuildLike
+);
+
+/**
  * Upload build images
  */
 router.post(

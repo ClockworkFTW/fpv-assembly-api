@@ -285,7 +285,50 @@ const deleteBuildCommentVote = asyncHandler(async (req, res) => {
 
   await vote.destroy();
 
-  res.sendStatus(204);
+  res.status(204).end();
+});
+
+/**
+ * Create build like
+ */
+const createBuildLike = asyncHandler(async (req, res) => {
+  const { userId } = req.auth;
+  const { buildId } = req.params;
+  const { likeId } = req.body;
+
+  const existingBuildLike = await models.BuildLike.findOne({
+    where: { buildId, userId },
+  });
+
+  if (existingBuildLike) {
+    throw new Error("Build has already been liked");
+  }
+
+  await models.BuildLike.create({ id: likeId, buildId, userId });
+
+  res.status(201).end();
+});
+
+/**
+ * Delete build like
+ */
+const deleteBuildLike = asyncHandler(async (req, res) => {
+  const { userId } = req.auth;
+  const { likeId } = req.params;
+
+  const buildLike = await models.BuildLike.findByPk(likeId);
+
+  if (!buildLike) {
+    throw new Error("Like not found");
+  }
+
+  if (buildLike.userId !== userId) {
+    throw new Error("Like cannot be deleted");
+  }
+
+  await buildLike.destroy();
+
+  res.status(204).end();
 });
 
 /**
@@ -389,6 +432,8 @@ export default {
   createBuildCommentVote,
   updateBuildCommentVote,
   deleteBuildCommentVote,
+  createBuildLike,
+  deleteBuildLike,
   uploadBuildImages,
   reorderBuildImages,
   deleteBuildImage,
