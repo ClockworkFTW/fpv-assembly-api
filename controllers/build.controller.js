@@ -231,9 +231,17 @@ const createBuildCommentVote = asyncHandler(async (req, res) => {
     throw new Error("Comment not found");
   }
 
+  const existingVote = await models.CommentVote.findOne({
+    where: { userId, commentId },
+  });
+
+  if (existingVote) {
+    throw new Error("Vote could not be cast");
+  }
+
   await models.CommentVote.create({ userId, commentId, vote });
 
-  res.sendStatus(201);
+  res.status(201).end();
 });
 
 /**
@@ -250,7 +258,7 @@ const updateBuildCommentVote = asyncHandler(async (req, res) => {
   }
 
   const vote = await models.CommentVote.findOne({
-    where: { commentId },
+    where: { userId, commentId },
   });
 
   if (!vote || vote.userId !== userId) {
@@ -259,7 +267,7 @@ const updateBuildCommentVote = asyncHandler(async (req, res) => {
 
   await vote.update({ ...req.body });
 
-  res.sendStatus(201);
+  res.status(201).end();
 });
 
 /**
@@ -276,7 +284,7 @@ const deleteBuildCommentVote = asyncHandler(async (req, res) => {
   }
 
   const vote = await models.CommentVote.findOne({
-    where: { commentId },
+    where: { userId, commentId },
   });
 
   if (!vote || vote.userId !== userId) {
