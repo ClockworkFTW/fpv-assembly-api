@@ -10,6 +10,7 @@ import getReviewModel from "../models/review.model.js";
 import getBuildPartModel from "../models/build-part.model.js";
 import getBuildImageModel from "../models/build-image.model.js";
 import getBuildLikeModel from "../models/build-like.model.js";
+import getBuildViewModel from "../models/build-view.model.js";
 import getCommentModel from "../models/comment.model.js";
 import getCommentChildModel from "../models/comment-child.model.js";
 import getCommentVoteModel from "../models/comment-vote.model.js";
@@ -48,6 +49,7 @@ const models = {
   BuildPart: getBuildPartModel(sequelize, Sequelize),
   BuildImage: getBuildImageModel(sequelize, Sequelize),
   BuildLike: getBuildLikeModel(sequelize, Sequelize),
+  BuildView: getBuildViewModel(sequelize, Sequelize),
   Comment: getCommentModel(sequelize, Sequelize),
   CommentChild: getCommentChildModel(sequelize, Sequelize),
   CommentVote: getCommentVoteModel(sequelize, Sequelize),

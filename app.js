@@ -9,6 +9,7 @@ import passportStrategies from "./config/passport.js";
 import errorHandler from "./middleware/error.js";
 import routes from "./routes/index.js";
 import config from "./config/variables.js";
+import requestIp from "request-ip";
 
 const app = express();
 
@@ -27,6 +28,9 @@ app.use(helmet());
 
 // enable CORS - Cross Origin Resource Sharing
 app.use(cors(config.cors));
+
+// get request IP address
+app.use(requestIp.mw());
 
 // passport authentication strategies
 app.use(passport.initialize());

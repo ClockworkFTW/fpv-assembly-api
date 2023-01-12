@@ -17,24 +17,52 @@ const getBuildById = async (buildId) => {
     raw: true,
   });
 
+  const likes = await models.BuildLike.findAll({
+    where: { buildId },
+    attributes: { exclude: ["buildId", "createdAt", "updatedAt"] },
+    raw: true,
+  });
+
+  const parts = await getParts(buildId);
+  const images = await getImages(buildId);
+  const comments = await getComments(buildId);
+
+  const commentCount = await models.Comment.count({ where: { buildId } });
+  const viewCount = await models.BuildView.count({ where: { buildId } });
+
+  return {
+    ...build,
+    user,
+    likes,
+    parts,
+    images,
+    comments,
+    commentCount,
+    viewCount,
+  };
+};
+
+const getParts = async (buildId) => {
   const buildParts = await models.BuildPart.findAll({
     where: { buildId },
     attributes: ["partId", "quantity"],
   });
 
-  const parts = await Promise.all(
+  return await Promise.all(
     buildParts.map(async ({ partId, quantity }) => {
       const part = await partServices.getPartById(partId);
       return { ...part, quantity };
     })
   );
+};
 
+const getImages = async (buildId) => {
   const buildImages = await models.BuildImage.findAll({
     where: { buildId },
     attributes: ["imageId", "index"],
   });
 
-  const images = await Promise.all(
+  return await Promise.all(
     buildImages.map(async ({ imageId, index }) => {
       const image = await models.Image.findByPk(imageId, {
         attributes: ["id", "url"],
@@ -43,18 +71,6 @@ const getBuildById = async (buildId) => {
       return { ...image, index };
     })
   );
-
-  const comments = await getComments(buildId);
-
-  const likes = await models.BuildLike.findAll({
-    where: { buildId },
-    attributes: { exclude: ["buildId", "createdAt", "updatedAt"] },
-    raw: true,
-  });
-
-  console.log(likes);
-
-  return { ...build, user, parts, images, comments, likes };
 };
 
 const getComments = async (buildId) => {

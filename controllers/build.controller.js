@@ -23,6 +23,16 @@ const getBuild = asyncHandler(async (req, res) => {
 
   const build = await buildServices.getBuildById(buildId);
 
+  const ipAddress = req.clientIp;
+
+  const existingView = await models.BuildView.findOne({
+    where: { buildId, ipAddress },
+  });
+
+  if (!existingView) {
+    await models.BuildView.create({ buildId, ipAddress });
+  }
+
   res.status(200).send({ build });
 });
 
